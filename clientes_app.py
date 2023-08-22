@@ -14,12 +14,12 @@ db = mysql.connector.connect(
     database=config["database"]
 )
 
-def guardar_cliente(fecha_inscripcion, nombre_apellido, fecha_nacimiento, email, telefono, requiere_instructor, peso_inicial, objetivo, observaciones):
+def guardar_cliente(fecha_inscripcion, nombre_apellido, fecha_nacimiento, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones):
     cursor = db.cursor()
-    query = "INSERT INTO Clientes (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, requiere_instructor, peso_inicial, objetivo, observaciones) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    query = "INSERT INTO Clientes (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     nombre_apellido = nombre_apellido.strip()  # Eliminar posibles espacios al inicio y final
     nombre, apellido = nombre_apellido.rsplit(maxsplit=1)
-    values = (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, requiere_instructor, peso_inicial, objetivo, observaciones)
+    values = (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones)
     cursor.execute(query, values)
     db.commit()
     cursor.close()
@@ -32,6 +32,8 @@ def main():
     fecha_nacimiento = st.date_input("Fecha de Nacimiento:")
     email = st.text_input("Email:")
     telefono = st.text_input("Número de Teléfono Celular:")
+    domicilio = st.text_input("Domicilio:")
+    dni = st.text_input("Número de DNI:")
     requiere_instructor = st.checkbox("Requiere Instructor")
     peso_inicial = st.number_input("Peso Inicial:", step=1, format="%d")
     objetivo_options = ["Sin especificar", "Bajar de Peso", "Subir de Peso", "Mantener"]
@@ -39,7 +41,7 @@ def main():
     observaciones = st.text_area("Observaciones")
     
     if st.button("Guardar Cliente"):
-        guardar_cliente(fecha_inscripcion, nombre_apellido, fecha_nacimiento, email, telefono, requiere_instructor, peso_inicial, objetivo, observaciones)
+        guardar_cliente(fecha_inscripcion, nombre_apellido, fecha_nacimiento, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones)
         st.success(f"Cliente {nombre_apellido} guardado exitosamente!")
 
 if __name__ == "__main__":
