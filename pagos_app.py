@@ -1,22 +1,23 @@
 import streamlit as st
-import mysql.connector
+import pyodbc
 import json
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
     config = json.load(config_file)
 
-# Conexión a la base de datos MySQL
-db = mysql.connector.connect(
-    host=config["host"],
-    user=config["user"],
-    password=config["password"],
-    database=config["database"]
+# Conexión a la base de datos SQL Server
+db = pyodbc.connect(
+    driver=config["driver"],
+    server=config["server"],
+    database=config["database"],
+    uid=config["user"],
+    pwd=config["password"]
 )
 
 def guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago):
     cursor = db.cursor()
-    query = "INSERT INTO Pagos (fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago) VALUES (%s, %s, %s, %s, %s, %s)"
+    query = "INSERT INTO Pago (fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago) VALUES (?, ?, ?, ?, ?, ?)"
     values = (fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago)
     cursor.execute(query, values)
     db.commit()
@@ -24,7 +25,7 @@ def guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pag
 
 def obtener_clientes():
     cursor = db.cursor()
-    query = "SELECT idCliente, nombre_apellido FROM Clientes"
+    query = "SELECT idCliente, nombre_apellido FROM Cliente"
     cursor.execute(query)
     clientes = cursor.fetchall()
     cursor.close()

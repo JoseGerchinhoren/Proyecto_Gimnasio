@@ -1,30 +1,31 @@
 import streamlit as st
-import mysql.connector
+import pyodbc
 import json
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
     config = json.load(config_file)
 
-# Conexión a la base de datos MySQL
-db = mysql.connector.connect(
-    host=config["host"],
-    user=config["user"],
-    password=config["password"],
-    database=config["database"]
+# Conexión a la base de datos SQL Server
+db = pyodbc.connect(
+    driver=config["driver"],
+    server=config["server"],
+    database=config["database"],
+    uid=config["user"],
+    pwd=config["password"]
 )
 
 def obtener_info_cliente(nombre_cliente):
     cursor = db.cursor()
-    query = "SELECT * FROM Clientes WHERE nombre_apellido = %s"
-    cursor.execute(query, (nombre_cliente,))
+    query = "SELECT * FROM Cliente WHERE nombre_apellido = ?"
+    cursor.execute(query, nombre_cliente)
     cliente_info = cursor.fetchone()
     cursor.close()
     return cliente_info
 
 def obtener_nombres_clientes():
     cursor = db.cursor()
-    query = "SELECT nombre_apellido FROM Clientes"
+    query = "SELECT nombre_apellido FROM Cliente"
     cursor.execute(query)
     nombres_clientes = [cliente[0] for cliente in cursor.fetchall()]
     cursor.close()

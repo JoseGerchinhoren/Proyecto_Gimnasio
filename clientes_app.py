@@ -1,27 +1,28 @@
 import streamlit as st
-import mysql.connector
+import pyodbc
 import json
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
     config = json.load(config_file)
 
-# Conexión a la base de datos MySQL
-db = mysql.connector.connect(
-    host=config["host"],
-    user=config["user"],
-    password=config["password"],
-    database=config["database"]
+# Conexión a la base de datos SQL Server
+conn = pyodbc.connect(
+    driver=config["driver"],
+    server=config["server"],
+    database=config["database"],
+    uid=config["user"],
+    pwd=config["password"]
 )
 
 def guardar_cliente(fecha_inscripcion, nombre_apellido, fecha_nacimiento, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones):
-    cursor = db.cursor()
-    query = "INSERT INTO Clientes (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cursor = conn.cursor()
+    query = "INSERT INTO Cliente (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     nombre_apellido = nombre_apellido.strip()  # Eliminar posibles espacios al inicio y final
     nombre, apellido = nombre_apellido.rsplit(maxsplit=1)
     values = (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones)
     cursor.execute(query, values)
-    db.commit()
+    conn.commit()
     cursor.close()
 
 def main():
