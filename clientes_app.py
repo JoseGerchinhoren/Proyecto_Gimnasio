@@ -26,7 +26,7 @@ def guardar_cliente(fecha_inscripcion, nombre_apellido, fecha_nacimiento, email,
     cursor.close()
 
 def main():
-    st.title("Ingresar Datos de Clientes")
+    st.title("Ingresar Datos de Cliente")
     
     fecha_inscripcion = st.date_input("Fecha de Inscripción:")
     nombre_apellido = st.text_input("Nombre/s y Apellido/s del Cliente:")
