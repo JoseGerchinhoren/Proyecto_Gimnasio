@@ -30,32 +30,8 @@ def obtener_datos_cliente(nombre_apellido):
     
     return row  # Devuelve una fila de datos del cliente o None si no se encuentra
 
-# Función para obtener el idUsuario de un cliente por su idCliente
-def obtener_id_usuario_cliente(idCliente):  # Cambio de "id_cliente" a "idCliente"
-    conn = pyodbc.connect(
-        driver=config["driver"],
-        server=config["server"],
-        database=config["database"],
-        uid=config["user"],
-        pwd=config["password"]
-    )
-    cursor = conn.cursor()
-    
-    query = """
-    SELECT idUsuario FROM Usuario
-    WHERE idCliente = ?
-    """
-    
-    cursor.execute(query, (idCliente,))  # Cambio de "id_cliente" a "idCliente"
-    id_usuario = cursor.fetchone()
-    
-    cursor.close()
-    conn.close()
-    
-    return id_usuario[0] if id_usuario else None
-
 # Función para editar los datos de un cliente
-def editar_cliente(idCliente, campo_editar, nuevo_valor):  # Cambio de "id_cliente" a "idCliente"
+def editar_cliente(id_cliente, campo_editar, nuevo_valor):
     if campo_editar == "idCliente":
         st.warning("El campo 'idCliente' no se puede editar.")
         return
@@ -75,19 +51,17 @@ def editar_cliente(idCliente, campo_editar, nuevo_valor):  # Cambio de "id_clien
     WHERE idCliente = ?
     """
     
-    values = (nuevo_valor, idCliente)  # Cambio de "id_cliente" a "idCliente"
+    values = (nuevo_valor, id_cliente)
     cursor.execute(query, values)
     conn.commit()
     
-    # Obtener el idUsuario del cliente actual
-    id_usuario_modificacion = obtener_id_usuario_cliente(idCliente)  # Cambio de "id_cliente" a "idCliente"
-    
     # Registrar la modificación en la tabla ModificacionesClientes
+    usuario_modificacion = st.session_state.user_nombre_apellido  # Nombre y apellido del usuario que realiza la modificación
     query_modificacion = """
-    INSERT INTO ModificacionesClientes (idCliente, idUsuario, fechaModificacion)
+    INSERT INTO ModificacionesClientes (idCliente, usuarioModificacion, fechaModificacion)
     VALUES (?, ?, GETDATE())
     """
-    values_modificacion = (idCliente, id_usuario_modificacion)  # Cambio de "id_cliente" a "idCliente"
+    values_modificacion = (id_cliente, usuario_modificacion)
     cursor.execute(query_modificacion, values_modificacion)
     conn.commit()
     
@@ -144,8 +118,8 @@ def main():
             
             if st.button("Guardar Cambios"):
                 # Realizar la edición del campo seleccionado
-                idCliente = cliente_data.idCliente  # Cambio de "id_cliente" a "idCliente"
-                editar_cliente(idCliente, campo_editar, nuevo_valor)
+                id_cliente = cliente_data.idCliente  # ID del cliente en la primera posición
+                editar_cliente(id_cliente, campo_editar, nuevo_valor)
                 st.success(f"Se ha editado el campo {campo_editar} correctamente.")
         else:
             st.error("Cliente no encontrado.")
