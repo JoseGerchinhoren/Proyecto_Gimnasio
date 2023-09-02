@@ -3,8 +3,8 @@ from clientes_app import main as clientes_main
 from pagos_app import main as pagos_main
 from informacionClientes_app import main as info_clientes_main
 from usuarios_app import main as usuarios_main
-from modificaClientes_app import main as modifica_cliente_main  # Importa la nueva pestaña para modificar clientes
-from modificaPagos_app import main as modifica_pagos_main  # Importa la nueva pestaña para modificar pagos
+from modificaClientes_app import main as modifica_cliente_main
+from modificaPagos_app import main as modifica_pagos_main
 
 import pyodbc
 import json
@@ -60,7 +60,7 @@ def login(username, password):
         st.session_state.logged_in = True
         st.session_state.rol = rol
         st.session_state.user_nombre_apellido = username  # Almacenar el nombre y apellido en la sesión
-        st.success("Inicio de sesión exitoso!")
+        st.success(f"Bienvenido, {username}! Inicio de sesión exitoso!")
         # Redirigir después de iniciar sesión
         st.experimental_rerun()  # Recargar la aplicación para mostrar el contenido correcto
     else:
@@ -91,8 +91,12 @@ def main():
             selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Ingresar Datos de Clientes", "Ingresar Pagos", "Información de Clientes"])
         
         if selected_option == "Inicio":
-            st.write("Bienvenido a SixGym - Sistema de Gestión")
-        elif selected_option == "Ingresar Datos de Clientes":
+            st.write(f"Bienvenido, {user_nombre_apellido}! - SixGym - Sistema de Gestión")
+        
+        # Agregar una etiqueta que muestre el nombre del usuario
+        st.write(f"Usuario: {user_nombre_apellido}")
+        
+        if selected_option == "Ingresar Datos de Clientes":
             clientes_main()
         elif selected_option == "Ingresar Pagos":
             pagos_main()
