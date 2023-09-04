@@ -49,18 +49,18 @@ def obtener_pagos_cliente(nombre_apellido):
     
     return rows  # Devuelve una lista de filas de datos de pagos del cliente
 
-# Función para obtener el ID de usuario a partir de su nombre de usuario
-def obtener_id_usuario(nombre_usuario):
+# Función para obtener el ID de usuario a partir de su nombre y apellido
+def obtener_id_usuario(nombre, apellido):
     conn = conectar_bd()
     cursor = conn.cursor()
     
     query = """
     SELECT idUsuario
     FROM Usuario
-    WHERE nombre = ?
+    WHERE nombre = ? AND apellido = ?
     """
     
-    cursor.execute(query, (nombre_usuario,))
+    cursor.execute(query, (nombre, apellido))
     row = cursor.fetchone()
     
     cursor.close()
@@ -85,12 +85,15 @@ def editar_pago(id_pago, monto, metodo_pago, detalle_pago, nombre_usuario):
     values = (monto, metodo_pago, detalle_pago, id_pago)
     cursor.execute(query, values)
     
-    # Obtener el ID de usuario a partir del nombre de usuario
-    id_usuario_modificacion = obtener_id_usuario(nombre_usuario)
+    # Obtener el ID de usuario a partir del nombre y apellido del usuario
+    nombre, apellido = nombre_usuario.split(" ")  # Divide el nombre y el apellido
+    id_usuario_modificacion = obtener_id_usuario(nombre, apellido)
+    
+    print("Valor de id_usuario_modificacion en editar_pago:", id_usuario_modificacion)
     
     # Registrar la modificación en la tabla ModificacionesPagos
     query_modificacion = """
-    INSERT INTO ModificacionesPagos (idPago, idUsuarioModificacion, fechaModificacion)
+    INSERT INTO ModificacionesPagos (idPago, idUsuario, fechaModificacion)
     VALUES (?, ?, GETDATE())
     """
     values_modificacion = (id_pago, id_usuario_modificacion)

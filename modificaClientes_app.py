@@ -6,15 +6,19 @@ import json
 with open("../config.json") as config_file:
     config = json.load(config_file)
 
-# Función para obtener los datos de un cliente por nombre y apellido
-def obtener_datos_cliente(nombre_apellido):
-    conn = pyodbc.connect(
+# Función para conectar a la base de datos
+def conectar_bd():
+    return pyodbc.connect(
         driver=config["driver"],
         server=config["server"],
         database=config["database"],
         uid=config["user"],
         pwd=config["password"]
     )
+
+# Función para obtener los datos de un cliente por nombre y apellido
+def obtener_datos_cliente(nombre_apellido):
+    conn = conectar_bd()
     cursor = conn.cursor()
     
     query = """
@@ -30,19 +34,32 @@ def obtener_datos_cliente(nombre_apellido):
     
     return row  # Devuelve una fila de datos del cliente o None si no se encuentra
 
+# Función para obtener el ID de usuario a partir de su nombre y apellido
+def obtener_id_usuario(nombre, apellido):
+    conn = conectar_bd()
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT idUsuario
+    FROM Usuario
+    WHERE nombre = ? AND apellido = ?
+    """
+    
+    cursor.execute(query, (nombre, apellido))
+    row = cursor.fetchone()
+    
+    cursor.close()
+    conn.close()
+    
+    return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
+
 # Función para editar los datos de un cliente
-def editar_cliente(id_cliente, campo_editar, nuevo_valor):
+def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario):
     if campo_editar == "idCliente":
         st.warning("El campo 'idCliente' no se puede editar.")
         return
     
-    conn = pyodbc.connect(
-        driver=config["driver"],
-        server=config["server"],
-        database=config["database"],
-        uid=config["user"],
-        pwd=config["password"]
-    )
+    conn = conectar_bd()
     cursor = conn.cursor()
     
     query = f"""
@@ -55,13 +72,18 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor):
     cursor.execute(query, values)
     conn.commit()
     
+    # Obtener el ID de usuario a partir del nombre y apellido del usuario
+    nombre, apellido = nombre_usuario.split(" ")  # Divide el nombre y el apellido
+    id_usuario_modificacion = obtener_id_usuario(nombre, apellido)
+    
+    print("Valor de id_usuario_modificacion en editar_cliente:", id_usuario_modificacion)
+    
     # Registrar la modificación en la tabla ModificacionesClientes
-    usuario_modificacion = st.session_state.user_nombre_apellido  # Nombre y apellido del usuario que realiza la modificación
     query_modificacion = """
-    INSERT INTO ModificacionesClientes (idCliente, usuarioModificacion, fechaModificacion)
+    INSERT INTO ModificacionesClientes (idCliente, idUsuarioModificacion, fechaModificacion)
     VALUES (?, ?, GETDATE())
     """
-    values_modificacion = (id_cliente, usuario_modificacion)
+    values_modificacion = (id_cliente, id_usuario_modificacion)
     cursor.execute(query_modificacion, values_modificacion)
     conn.commit()
     
@@ -70,13 +92,7 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor):
 
 # Función para obtener los nombres de los clientes
 def obtener_nombres_clientes():
-    conn = pyodbc.connect(
-        driver=config["driver"],
-        server=config["server"],
-        database=config["database"],
-        uid=config["user"],
-        pwd=config["password"]
-    )
+    conn = conectar_bd()
     cursor = conn.cursor()
     
     query = "SELECT nombre_apellido FROM Cliente"
@@ -101,28 +117,48 @@ def main():
         if cliente_data:
             st.write("Información del Cliente:")
             
+            # Obtener el orden de los campos en la tabla "Cliente"
+            campos_cliente = ["idCliente", "fecha_inscripcion", "fecha_nacimiento", "nombre_apellido", "email", "telefono", "domicilio", "dni", "requiere_instructor", "peso_inicial", "objetivo", "observaciones"]
+            
+            # Texto amigable para mostrar los campos
+            campos_amigables = {
+                "idCliente": "ID de Cliente",
+                "fecha_inscripcion": "Fecha de Inscripción",
+                "fecha_nacimiento": "Fecha de Nacimiento",
+                "nombre_apellido": "Nombre y Apellido",
+                "email": "Email",
+                "telefono": "Teléfono",
+                "domicilio": "Domicilio",
+                "dni": "DNI",
+                "requiere_instructor": "Requiere Instructor",
+                "peso_inicial": "Peso Inicial",
+                "objetivo": "Objetivo",
+                "observaciones": "Observaciones"
+            }
+            
             # Iterar sobre los campos y sus valores
-            for i in range(len(cliente_data.cursor_description)):
-                campo = cliente_data.cursor_description[i][0]  # Nombre del campo desde el cursor
-                valor = cliente_data[i]  # Valor del campo
-                
-                # Mostrar cada campo y su valor en una fila
-                st.write(f"{campo}: {valor}")
+            for campo in campos_cliente:
+                valor = cliente_data[campos_cliente.index(campo)]  # Valor del campo
+                campo_amigable = campos_amigables.get(campo, campo)
+                st.write(f"{campo_amigable}: {valor}")
             
+            st.write("Editar Campos:")
+
             # Permitir al usuario seleccionar el campo a editar
-            campos_editables = [campo[0] for campo in cliente_data.cursor_description if campo[0] != "idCliente"]
-            campo_editar = st.selectbox("Seleccione el campo a editar:", campos_editables)
+            campo_editar = st.selectbox("Seleccione el campo a editar:", [campo for campo in campos_cliente if campo != "idCliente"])
             
-            # Permitir al usuario editar el campo
-            nuevo_valor = st.text_input(f"Nuevo valor de {campo_editar}:", cliente_data[campos_editables.index(campo_editar)])
+            # Mostrar el valor actual en el campo de edición
+            valor_actual = cliente_data[campos_cliente.index(campo_editar)]
+            nuevo_valor = st.text_input(f"Nuevo valor de {campos_amigables.get(campo_editar, campo_editar)}:", valor_actual)
             
             if st.button("Guardar Cambios"):
                 # Realizar la edición del campo seleccionado
                 id_cliente = cliente_data.idCliente  # ID del cliente en la primera posición
-                editar_cliente(id_cliente, campo_editar, nuevo_valor)
-                st.success(f"Se ha editado el campo {campo_editar} correctamente.")
+                usuario_modificacion = st.session_state.user_nombre_apellido  # Nombre y apellido del usuario que realiza la modificación
+                editar_cliente(id_cliente, campo_editar, nuevo_valor, usuario_modificacion)
+                st.success(f"Se ha editado el campo {campos_amigables.get(campo_editar, campo_editar)} correctamente.")
         else:
             st.error("Cliente no encontrado.")
-    
+
 if __name__ == "__main__":
     main()
