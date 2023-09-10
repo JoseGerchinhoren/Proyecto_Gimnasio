@@ -1,6 +1,7 @@
 import streamlit as st
 import pyodbc
 import json
+from datetime import datetime
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -15,13 +16,33 @@ conn = pyodbc.connect(
     pwd=config["password"]
 )
 
-def guardar_cliente(fecha_inscripcion, nombre_apellido, fecha_nacimiento, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones):
+# Función para obtener el ID de usuario a partir de su nombre y apellido
+def obtener_id_usuario(nombre, apellido):
     cursor = conn.cursor()
-    query = "INSERT INTO Cliente (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    nombre_apellido = nombre_apellido.strip()  # Eliminar posibles espacios al inicio y final
-    nombre, apellido = nombre_apellido.rsplit(maxsplit=1)
-    values = (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones)
-    cursor.execute(query, values)
+    
+    query = """
+    SELECT idUsuario
+    FROM Usuario
+    WHERE nombre = ? AND apellido = ?
+    """
+    
+    cursor.execute(query, (nombre, apellido))
+    row = cursor.fetchone()
+    
+    cursor.close()
+    
+    return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
+def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario):
+    cursor = conn.cursor()
+    
+    # Obtener el ID de usuario a partir del nombre y apellido del usuario
+    nombre, apellido = idUsuario.split(" ")  # Divide el nombre y el apellido
+    id_usuario = obtener_id_usuario(nombre, apellido)
+    
+    # Ejecutar el stored procedure con los parámetros requeridos
+    cursor.execute("EXEC InsertarCliente ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+                   (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, id_usuario))
+    
     conn.commit()
     cursor.close()
 
@@ -41,8 +62,11 @@ def main():
     objetivo = st.selectbox("Objetivo:", objetivo_options)
     observaciones = st.text_area("Observaciones")
     
+    # Obtener el nombre y apellido del usuario autenticado
+    idUsuario = st.session_state.get("user_nombre_apellido", "")
+    
     if st.button("Guardar Cliente"):
-        guardar_cliente(fecha_inscripcion, nombre_apellido, fecha_nacimiento, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones)
+        guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario)
         st.success(f"Cliente {nombre_apellido} guardado exitosamente!")
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ CREATE PROCEDURE InsertarCliente (
     @peso_inicial int,
     @objetivo varchar(50),
     @observaciones text,
-    @usuario_registro varchar(50)
+    @id_usuario int
 )
 AS
 BEGIN
@@ -45,7 +45,7 @@ BEGIN
         @peso_inicial,
         @objetivo,
         @observaciones,
-        @usuario_registro,
+        @id_usuario,
         @hora_registro
     );
 END;
