@@ -88,9 +88,7 @@ def editar_pago(id_pago, monto, metodo_pago, detalle_pago, nombre_usuario):
     # Obtener el ID de usuario a partir del nombre y apellido del usuario
     nombre, apellido = nombre_usuario.split(" ")  # Divide el nombre y el apellido
     id_usuario_modificacion = obtener_id_usuario(nombre, apellido)
-    
-    print("Valor de id_usuario_modificacion en editar_pago:", id_usuario_modificacion)
-    
+   
     # Registrar la modificación en la tabla ModificacionesPagos
     query_modificacion = """
     INSERT INTO ModificacionesPagos (idPago, idUsuario, fechaModificacion)
