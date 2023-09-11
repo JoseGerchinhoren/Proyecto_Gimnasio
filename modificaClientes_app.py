@@ -54,7 +54,7 @@ def obtener_id_usuario(nombre, apellido):
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
 
 # Función para editar los datos de un cliente
-def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario):
+def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario, campo_modificado):
     if campo_editar == "idCliente":
         st.warning("El campo 'idCliente' no se puede editar.")
         return
@@ -75,15 +75,13 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario):
     # Obtener el ID de usuario a partir del nombre y apellido del usuario
     nombre, apellido = nombre_usuario.split(" ")  # Divide el nombre y el apellido
     id_usuario_modificacion = obtener_id_usuario(nombre, apellido)
-    
-    print("Valor de id_usuario_modificacion en editar_cliente:", id_usuario_modificacion)
-    
+
     # Registrar la modificación en la tabla ModificacionesClientes
     query_modificacion = """
-    INSERT INTO ModificacionesClientes (idCliente, idUsuario, fechaModificacion)
-    VALUES (?, ?, GETDATE())
+    INSERT INTO ModificacionesClientes (idCliente, idUsuario, fechaModificacion, campoModificado, nuevoValor)
+    VALUES (?, ?, GETDATE(), ?, ?)
     """
-    values_modificacion = (id_cliente, id_usuario_modificacion)
+    values_modificacion = (id_cliente, id_usuario_modificacion, campo_modificado, nuevo_valor)
     cursor.execute(query_modificacion, values_modificacion)
     conn.commit()
     
@@ -155,7 +153,8 @@ def main():
                 # Realizar la edición del campo seleccionado
                 id_cliente = cliente_data.idCliente  # ID del cliente en la primera posición
                 usuario_modificacion = st.session_state.user_nombre_apellido  # Nombre y apellido del usuario que realiza la modificación
-                editar_cliente(id_cliente, campo_editar, nuevo_valor, usuario_modificacion)
+                campo_modificado = campo_editar  # Nombre del campo modificado
+                editar_cliente(id_cliente, campo_editar, nuevo_valor, usuario_modificacion, campo_modificado)
                 st.success(f"Se ha editado el campo {campos_amigables.get(campo_editar, campo_editar)} correctamente.")
         else:
             st.error("Cliente no encontrado.")
