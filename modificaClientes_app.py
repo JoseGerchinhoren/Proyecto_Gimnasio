@@ -22,8 +22,7 @@ def obtener_datos_cliente(nombre_apellido):
     cursor = conn.cursor()
     
     query = """
-    SELECT *
-    FROM Cliente
+    SELECT * FROM Cliente
     WHERE nombreApellido = ?
     """
     
@@ -55,7 +54,7 @@ def obtener_id_usuario(nombre, apellido):
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
 
 # Función para editar los datos de un cliente
-def editar_cliente(id_cliente, campo_editar, nuevo_valor, id_usuario):
+def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario):
     if campo_editar == "idCliente":
         st.warning("El campo 'idCliente' no se puede editar.")
         return
@@ -73,12 +72,18 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor, id_usuario):
     cursor.execute(query, values)
     conn.commit()
     
+    # Obtener el ID de usuario a partir del nombre y apellido del usuario
+    nombre, apellido = nombre_usuario.split(" ")  # Divide el nombre y el apellido
+    id_usuario_modificacion = obtener_id_usuario(nombre, apellido)
+    
+    print("Valor de id_usuario_modificacion en editar_cliente:", id_usuario_modificacion)
+    
     # Registrar la modificación en la tabla ModificacionesClientes
     query_modificacion = """
     INSERT INTO ModificacionesClientes (idCliente, idUsuario, fechaModificacion)
     VALUES (?, ?, GETDATE())
     """
-    values_modificacion = (id_cliente, id_usuario)
+    values_modificacion = (id_cliente, id_usuario_modificacion)
     cursor.execute(query_modificacion, values_modificacion)
     conn.commit()
     
@@ -102,26 +107,12 @@ def obtener_nombres_clientes():
 def main():
     st.title("Modificar Datos de Clientes")
     
-    # Obtener nombre y apellido del usuario autenticado
-    user_nombre_apellido = st.session_state.user_nombre_apellido
-
-     # Obtener el ID de usuario a partir del nombre y apellido del usuario
-    id_usuario = obtener_id_usuario(user_nombre_apellido)
+    # Obtener nombre y apellido del cliente para editar
+    nombre_apellido = st.selectbox("Seleccione un Cliente:", obtener_nombres_clientes())
     
-    if id_usuario is not None:
-        st.write("Modificar Clientes")
-    
-    st.write("Modificar Clientes")
-    
-    # Obtener la lista de nombres y apellidos de los clientes desde la base de datos
-    nombres_clientes = obtener_nombres_clientes()
-    
-    # Crear un cuadro desplegable para seleccionar un cliente
-    selected_cliente = st.selectbox("Seleccionar Cliente:", nombres_clientes)
-    
-    if selected_cliente:
+    if nombre_apellido:
         # Obtener los datos del cliente
-        cliente_data = obtener_datos_cliente(selected_cliente)
+        cliente_data = obtener_datos_cliente(nombre_apellido)
         
         if cliente_data:
             st.write("Información del Cliente:")
@@ -163,7 +154,8 @@ def main():
             if st.button("Guardar Cambios"):
                 # Realizar la edición del campo seleccionado
                 id_cliente = cliente_data.idCliente  # ID del cliente en la primera posición
-                editar_cliente(id_cliente, campo_editar, nuevo_valor, id_usuario)
+                usuario_modificacion = st.session_state.user_nombre_apellido  # Nombre y apellido del usuario que realiza la modificación
+                editar_cliente(id_cliente, campo_editar, nuevo_valor, usuario_modificacion)
                 st.success(f"Se ha editado el campo {campos_amigables.get(campo_editar, campo_editar)} correctamente.")
         else:
             st.error("Cliente no encontrado.")
