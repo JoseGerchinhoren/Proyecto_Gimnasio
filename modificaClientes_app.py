@@ -102,10 +102,49 @@ def obtener_nombres_clientes():
     
     return nombres_clientes
 
+# Función para eliminar un cliente por ID
+def eliminar_cliente(id_cliente, nombre_cliente):
+    conn = conectar_bd()
+    cursor = conn.cursor()
+    
+    # # Verificar si existen registros relacionados en ModificacionesClientes
+    # query_verificar = """
+    # SELECT COUNT(*) FROM ModificacionesClientes WHERE idCliente = ?
+    # """
+    
+    # cursor.execute(query_verificar, (id_cliente,))
+    # count = cursor.fetchone()[0]
+    
+    # if count > 0:
+    #     st.warning(f"No se puede eliminar el cliente '{nombre_cliente}' porque existen registros relacionados en ModificacionesClientes.")
+    # else:
+    #     # Mostrar un mensaje de confirmación
+    #     confirmar = st.warning(f"¿Estás seguro de que deseas eliminar el cliente '{nombre_cliente}'?")
+    #     if confirmar:
+            # Eliminar el cliente de ModificacionesClientes
+    query_eliminar_modificaciones = """
+    DELETE FROM ModificacionesClientes WHERE idCliente = ?
+    """
+    
+    cursor.execute(query_eliminar_modificaciones, (id_cliente,))
+    
+    # Eliminar el cliente de la tabla Cliente
+    query_eliminar_cliente = """
+    DELETE FROM Cliente WHERE idCliente = ?
+    """
+    
+    cursor.execute(query_eliminar_cliente, (id_cliente,))
+    
+    conn.commit()
+    st.success(f"Se ha eliminado el cliente '{nombre_cliente}' correctamente.")
+
+    cursor.close()
+    conn.close()
+    
 def main():
     st.title("Modificar Datos de Clientes")
     
-    # Obtener nombre y apellido del cliente para editar
+    # Obtener nombre y apellido del cliente para editar o eliminar
     nombre_apellido = st.selectbox("Seleccione un Cliente:", obtener_nombres_clientes())
     
     if nombre_apellido:
@@ -156,6 +195,10 @@ def main():
                 campo_modificado = campo_editar  # Nombre del campo modificado
                 editar_cliente(id_cliente, campo_editar, nuevo_valor, usuario_modificacion, campo_modificado)
                 st.success(f"Se ha editado el campo {campos_amigables.get(campo_editar, campo_editar)} correctamente.")
+            
+            # Agregar un botón para eliminar al cliente
+            if st.button("Eliminar Cliente"):
+                eliminar_cliente(cliente_data.idCliente, cliente_data.nombreApellido)
         else:
             st.error("Cliente no encontrado.")
 
