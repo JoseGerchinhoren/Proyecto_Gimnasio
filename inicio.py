@@ -84,12 +84,12 @@ def main():
         st.sidebar.title("Menú")
         
         if st.session_state.rol == "admin":
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Ingresar Datos de Clientes", "Ingresar Pagos", "Información de Clientes", "Ingresar Usuarios", "Modificar Clientes", "Modificar Pagos", "Agregar Gasto"])
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Ingresar Datos de Clientes", "Ingresar Pagos", "Información de Clientes", "Ingresar Usuarios", "Modificar Clientes", "Modificar Pagos", "Registrar Gastos"])
             if selected_option == "Modificar Clientes":
                 modifica_cliente_main()  # Carga la pestaña para modificar clientes en la misma página
             elif selected_option == "Modificar Pagos":
                 modifica_pagos_main()  # Carga la pestaña para modificar pagos en la misma página
-            elif selected_option == "Agregar Gasto":
+            elif selected_option == "Registrar Gastos":
                 gastos_main()  # Agregar la pestaña para gestionar gastos en la misma página
         else:
             selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Ingresar Datos de Clientes", "Ingresar Pagos", "Información de Clientes"])

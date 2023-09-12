@@ -106,41 +106,25 @@ def obtener_nombres_clientes():
 def eliminar_cliente(id_cliente, nombre_cliente):
     conn = conectar_bd()
     cursor = conn.cursor()
-    
-    # # Verificar si existen registros relacionados en ModificacionesClientes
-    # query_verificar = """
-    # SELECT COUNT(*) FROM ModificacionesClientes WHERE idCliente = ?
-    # """
-    
-    # cursor.execute(query_verificar, (id_cliente,))
-    # count = cursor.fetchone()[0]
-    
-    # if count > 0:
-    #     st.warning(f"No se puede eliminar el cliente '{nombre_cliente}' porque existen registros relacionados en ModificacionesClientes.")
-    # else:
-    #     # Mostrar un mensaje de confirmación
-    #     confirmar = st.warning(f"¿Estás seguro de que deseas eliminar el cliente '{nombre_cliente}'?")
-    #     if confirmar:
-            # Eliminar el cliente de ModificacionesClientes
-    query_eliminar_modificaciones = """
-    DELETE FROM ModificacionesClientes WHERE idCliente = ?
-    """
-    
-    cursor.execute(query_eliminar_modificaciones, (id_cliente,))
-    
-    # Eliminar el cliente de la tabla Cliente
-    query_eliminar_cliente = """
-    DELETE FROM Cliente WHERE idCliente = ?
-    """
-    
-    cursor.execute(query_eliminar_cliente, (id_cliente,))
-    
-    conn.commit()
-    st.success(f"Se ha eliminado el cliente '{nombre_cliente}' correctamente.")
 
-    cursor.close()
-    conn.close()
+    try:
+        # Eliminar el cliente de la tabla Cliente
+        query_eliminar_cliente = """
+        DELETE FROM Cliente WHERE idCliente = ?
+        """
     
+        cursor.execute(query_eliminar_cliente, (id_cliente,))
+    
+        conn.commit()
+        st.success(f"Se ha eliminado el cliente '{nombre_cliente}' correctamente.")
+    except pyodbc.IntegrityError as e:
+        st.error(f"No se puede eliminar el cliente '{nombre_cliente}' debido a restricciones de integridad en la base de datos. Asegúrese de que no existan registros relacionados en otras tablas.")
+    except Exception as e:
+        st.error(f"Se produjo un error al eliminar el cliente '{nombre_cliente}': {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
+
 def main():
     st.title("Modificar Datos de Clientes")
     

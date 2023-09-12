@@ -17,7 +17,7 @@ conn = pyodbc.connect(
 
 def guardar_usuario(nombre, apellido, email, contraseña, fecha_nacimiento, dni, domicilio, puesto, rol):
     cursor = conn.cursor()
-    query = "INSERT INTO Usuario (nombre, apellido, email, contraseña, fecha_nacimiento, dni, domicilio, puesto, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    query = "INSERT INTO Usuario (nombre, apellido, email, contraseña, fechaNacimiento, dni, domicilio, puesto, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     values = (nombre, apellido, email, contraseña, fecha_nacimiento, dni, domicilio, puesto, rol)
     cursor.execute(query, values)
     conn.commit()
@@ -26,15 +26,15 @@ def guardar_usuario(nombre, apellido, email, contraseña, fecha_nacimiento, dni,
 def main():
     st.title("Ingresar Datos de Usuarios")
     
-    nombre = st.text_input("Nombre:")
-    apellido = st.text_input("Apellido:")
+    nombre = st.text_input("Nombres:")
+    apellido = st.text_input("Apellidos:")
     email = st.text_input("Email:")
     contraseña = st.text_input("Contraseña:", type="password")
     confirmar_contraseña = st.text_input("Confirmar Contraseña:", type="password")
     fecha_nacimiento = st.date_input("Fecha de Nacimiento:")
     dni = st.text_input("Número de DNI:")
     domicilio = st.text_input("Domicilio:")
-    puesto_options = ["personal_atencion_publico", "personal_gestion", "jefe"]
+    puesto_options = ["Personal de atencion al publico", "Personal de gestion", "Jefe"]
     puesto = st.selectbox("Puesto:", puesto_options)
     rol_options = ["admin", "usuario"]
     rol = st.selectbox("Rol:", rol_options)
@@ -46,3 +46,5 @@ def main():
         else:
             st.error("Las contraseñas no coinciden. Vuelve a intentarlo.")
 
+if __name__ == "__main__":
+    main()

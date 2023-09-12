@@ -25,7 +25,7 @@ def guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pag
 
 def obtener_clientes():
     cursor = db.cursor()
-    query = "SELECT idCliente, nombre_apellido FROM Cliente"
+    query = "SELECT idCliente, nombreApellido FROM Cliente"
     cursor.execute(query)
     clientes = cursor.fetchall()
     cursor.close()
@@ -49,7 +49,10 @@ def main():
         id_cliente = [cliente[0] for cliente in obtener_clientes() if cliente[1] == nombre_apellido][0]
     
     monto_pago = st.number_input("Monto del Pago:", min_value=0, format="%d", key="monto_pago")
-    metodo_pago = st.text_input("Método de Pago:", key="metodo_pago")
+    # Campo de método de pago como un desplegable
+    metodo_pago_options = ["Efectivo", "Transferencia", "Tarjeta", "Otro"]
+    metodo_pago = st.selectbox("Método de Pago:", metodo_pago_options, key="metodo_pago")
+    
     detalle_pago = st.text_input("Detalle del Pago:", key="detalle_pago")
     
     if st.button("Guardar Pago"):

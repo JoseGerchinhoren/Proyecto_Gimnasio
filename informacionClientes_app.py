@@ -17,7 +17,7 @@ db = pyodbc.connect(
 
 def obtener_info_cliente(nombre_cliente):
     cursor = db.cursor()
-    query = "SELECT * FROM Cliente WHERE nombre_apellido = ?"
+    query = "SELECT * FROM Cliente WHERE nombreApellido = ?"
     cursor.execute(query, nombre_cliente)
     cliente_info = cursor.fetchone()
     cursor.close()
@@ -25,7 +25,7 @@ def obtener_info_cliente(nombre_cliente):
 
 def obtener_nombres_clientes():
     cursor = db.cursor()
-    query = "SELECT nombre_apellido FROM Cliente"
+    query = "SELECT nombreApellido FROM Cliente"
     cursor.execute(query)
     nombres_clientes = [cliente[0] for cliente in cursor.fetchall()]
     cursor.close()
