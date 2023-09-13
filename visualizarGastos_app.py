@@ -22,9 +22,9 @@ def visualizar_gastos():
 
     # Consulta SQL para obtener los gastos
     query = """
-    SELECT fecha, motivo, lugar, monto, metodoPago, categoria, observacion, rutaArchivo, archivo
+    SELECT idGasto, fecha, motivo, lugar, monto, metodoPago, categoria, observacion, rutaArchivo, archivo
     FROM Gasto
-    ORDER BY fecha DESC
+    ORDER BY idGasto DESC
     """
 
     # Ejecutar la consulta y obtener los resultados en un DataFrame
