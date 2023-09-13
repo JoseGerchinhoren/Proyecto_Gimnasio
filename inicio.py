@@ -6,6 +6,7 @@ from usuarios_app import main as usuarios_main
 from modificaClientes_app import main as modifica_cliente_main
 from modificaPagos_app import main as modifica_pagos_main
 from gastos_app import main as gastos_main
+from visualizarGastos_app import main as visualizar_gastos_main
 
 
 import pyodbc
@@ -84,13 +85,15 @@ def main():
         st.sidebar.title("Menú")
         
         if st.session_state.rol == "admin":
-            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Ingresar Datos de Clientes", "Ingresar Pagos", "Información de Clientes", "Ingresar Usuarios", "Modificar Clientes", "Modificar Pagos", "Registrar Gastos"])
+            selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Ingresar Datos de Clientes", "Ingresar Pagos", "Información de Clientes", "Ingresar Usuarios", "Modificar Clientes", "Modificar Pagos", "Registrar Gastos", "Visualizar Gastos"])
             if selected_option == "Modificar Clientes":
                 modifica_cliente_main()  # Carga la pestaña para modificar clientes en la misma página
             elif selected_option == "Modificar Pagos":
                 modifica_pagos_main()  # Carga la pestaña para modificar pagos en la misma página
             elif selected_option == "Registrar Gastos":
                 gastos_main()  # Agregar la pestaña para gestionar gastos en la misma página
+            elif selected_option == "Visualizar Gastos":
+                visualizar_gastos_main()  # Agregar la pestaña para gestionar gastos en la misma página
         else:
             selected_option = st.sidebar.selectbox("Seleccione una opción:", ["Inicio", "Ingresar Datos de Clientes", "Ingresar Pagos", "Información de Clientes"])
         
