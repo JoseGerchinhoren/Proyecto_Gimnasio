@@ -7,6 +7,8 @@ Proxima tarea crear dashboard en Power BI.
 
 La aplicación tiene las siguientes características:
 
+### Funciones para todos los usuarios:
+
 - **Inicio de Sesión**: Los usuarios pueden iniciar sesión con sus credenciales para acceder a las funciones de la aplicación.
 
 - **Registro de Clientes**: Permite el registro de nuevos clientes, incluyendo información básica como nombre, dirección, número de contacto, etc.
@@ -14,6 +16,8 @@ La aplicación tiene las siguientes características:
 - **Registro de Pagos**: Los clientes pueden registrar sus pagos y la aplicación almacena esta información para un seguimiento eficiente.
 
 - **Visualización de Datos de Clientes**: Los usuarios pueden ver información básica de los clientes, como su historial de pagos y detalles de contacto.
+
+### Funciones para los usuarios con permiso de administrador:
 
 - **Registro de Empleados**: Permite el registro de empleados que usarán la aplicación para administrar los datos del gimnasio.
 
@@ -37,13 +41,9 @@ Este proyecto se encuentra en desarrollo activo. Se están agregando nuevas cara
 
 ## Capturas de Pantalla
 
-A continuación, se presentan algunas capturas de pantalla de la interfaz de la aplicación:
+A continuación, se presenta captura de pantalla de la interfaz de la aplicación:
 
-![Interfaz Gráfica](screenshots/Sistema%20de%20Gestion%20SixGym.PNG)
-![Distintas Opciones de Funciones](screenshots/distintas%20funciones.PNG)
-
-<img src="screenshots/Sistema%20de%20Gestion%20SixGym.PNG" alt="Interfaz Gráfica">
-
+![Interfaz Gráfica](screenshot\InterfazSistemaGestionSixGym.PNG)
 
 ## Contribuciones
 
