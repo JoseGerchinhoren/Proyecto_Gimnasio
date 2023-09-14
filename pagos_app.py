@@ -1,6 +1,7 @@
 import streamlit as st
 import pyodbc
 import json
+import datetime
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -15,14 +16,31 @@ db = pyodbc.connect(
     pwd=config["password"]
 )
 
-def guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago):
+# Función para obtener el ID de usuario a partir de su nombre y apellido
+def obtener_id_usuario(nombre, apellido):
     cursor = db.cursor()
-    query = "INSERT INTO Pago (fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago) VALUES (?, ?, ?, ?, ?, ?)"
-    values = (fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago)
+    query = """
+    SELECT idUsuario
+    FROM Usuario
+    WHERE nombre = ? AND apellido = ?
+    """
+    cursor.execute(query, (nombre, apellido))
+    row = cursor.fetchone()
+    cursor.close()
+    return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
+def guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago, id_usuario):
+    cursor = db.cursor()
+    
+    # Agrega la hora actual a la fecha de pago
+    hora_actual = datetime.datetime.now().strftime("%H:%M:%S")
+    fecha_pago = f"{fecha_pago} {hora_actual}"
+    
+    query = "INSERT INTO Pago (fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago, idUsuario) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    values = (fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago, id_usuario)  # Agrega idUsuario
     cursor.execute(query, values)
     db.commit()
     cursor.close()
-
+    
 def obtener_clientes():
     cursor = db.cursor()
     query = "SELECT idCliente, nombreApellido FROM Cliente"
@@ -38,6 +56,10 @@ def main():
     
     nombre_apellido_input = st.text_input("Nombre y Apellido del Cliente:", key="nombre_apellido")
     nombre_apellido = None
+    
+    # Obtener el nombre y apellido del usuario autenticado desde la variable de sesión
+    nombre_usuario_actual = st.session_state.user_nombre_apellido
+    
     if nombre_apellido_input:
         nombres_clientes = [cliente[1] for cliente in obtener_clientes()]
         nombres_coincidentes = [nombre for nombre in nombres_clientes if nombre_apellido_input.lower() in nombre.lower()]
@@ -57,8 +79,22 @@ def main():
     
     if st.button("Guardar Pago"):
         if id_cliente:
-            guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago)
-            st.success("Pago guardado exitosamente!")
+            # Obtén el nombre y apellido del usuario actual y luego el idUsuario
+            usuario_actual_nombre_apellido = st.session_state.user_nombre_apellido
+            nombre_usuario_actual = usuario_actual_nombre_apellido.split()
+            
+            if len(nombre_usuario_actual) == 2:
+                nombre_usuario = nombre_usuario_actual[0]
+                apellido_usuario = nombre_usuario_actual[1]
+                id_usuario = obtener_id_usuario(nombre_usuario, apellido_usuario)
+                
+                if id_usuario:
+                    guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago, id_usuario)
+                    st.success("Pago guardado exitosamente!")
+                else:
+                    st.warning("No se pudo obtener el ID de usuario.")
+            else:
+                st.warning("El nombre y apellido del usuario actual no se pueden determinar.")
         else:
             st.warning("Seleccione un nombre de cliente válido antes de guardar el pago.")
 
