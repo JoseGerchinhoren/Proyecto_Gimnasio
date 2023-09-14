@@ -23,17 +23,19 @@ La aplicación tiene las siguientes características:
 
 ## Tecnologías Utilizadas
 
+- **Python**: El lenguaje de programación principal utilizado en este proyecto, que proporciona la base para la lógica y el funcionamiento de la aplicación, así como la manipulación de datos.
+
 - **Streamlit**: Se utiliza para crear la interfaz de usuario de la aplicación de manera sencilla y efectiva.
 
 - **SQL Server**: La base de datos se aloja en SQL Server para el almacenamiento seguro y eficiente de los datos del gimnasio.
 
--- **Power BI**: Para crear dashboard para analizar datos.
+- **Power BI**: Para crear dashboard para analizar datos.
 
 ## Estado del Proyecto
 
 Este proyecto se encuentra en desarrollo activo. Se están agregando nuevas características y mejoras de manera continua. Siéntase libre de contribuir o proporcionar comentarios.
 
-<!-- ## Capturas de Pantalla
+## Capturas de Pantalla
 
 A continuación, se presentan algunas capturas de pantalla de la interfaz de la aplicación:
 
@@ -41,7 +43,7 @@ A continuación, se presentan algunas capturas de pantalla de la interfaz de la 
 ![Distintas Opciones de Funciones](screenshots/distintas%20funciones.PNG)
 
 <img src="screenshots/Sistema%20de%20Gestion%20SixGym.PNG" alt="Interfaz Gráfica">
- -->
+
 
 ## Contribuciones
 
