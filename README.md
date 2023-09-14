@@ -43,7 +43,7 @@ Este proyecto se encuentra en desarrollo activo. Se están agregando nuevas cara
 
 A continuación, se presenta captura de pantalla de la interfaz de la aplicación:
 
-![Interfaz Gráfica](screenshot\InterfazSistemaGestionSixGym.PNG)
+<img src="screenshot/InterfazSistemaGestionSixGym.PNG" alt="Interfaz Gráfica">
 
 ## Contribuciones
 
