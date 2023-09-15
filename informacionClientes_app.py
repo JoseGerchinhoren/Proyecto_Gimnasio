@@ -1,6 +1,7 @@
 import streamlit as st
 import pyodbc
 import json
+import pandas as pd
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -31,6 +32,19 @@ def obtener_nombres_clientes():
     cursor.close()
     return nombres_clientes
 
+def obtener_pagos_cliente(id_cliente):
+    cursor = db.cursor()
+    query = """
+    SELECT fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago, idUsuario
+    FROM Pago
+    WHERE idCliente = ?
+    ORDER BY idPago DESC
+    """
+    cursor.execute(query, id_cliente)
+    gastos_cliente = cursor.fetchall()
+    cursor.close()
+    return gastos_cliente
+
 def main():
     st.title("Información del Cliente")
     
@@ -58,6 +72,22 @@ def main():
             st.write(f"Peso Inicial: {cliente_info[9]}")
             st.write(f"Objetivo: {cliente_info[10]}")
             st.write(f"Observaciones: {cliente_info[11]}")
+
+            # Obtener el ID del cliente
+            id_cliente = cliente_info[0]
+
+            # Obtener los pagos del cliente
+            pagos_cliente = obtener_pagos_cliente(id_cliente)
+
+            if pagos_cliente:
+                st.write("Pagos del Cliente:")
+                # Crear una lista de tuplas a partir de los datos de pagos_cliente
+                pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6]) for p in pagos_cliente]
+                # Crear el DataFrame con las columnas especificadas
+                pagos_df = pd.DataFrame(pagos_data, columns=["fechaPago", "idCliente", "nombreApellidoCliente", "montoPago", "metodoPago", "detallePago", "idUsuario"])
+                st.dataframe(pagos_df)
+            else: st.write(f"El cliente {cliente_info[3]} no tiene pagos registrados.")
+
         else:
             st.warning("Cliente no encontrado.")
 

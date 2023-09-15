@@ -28,6 +28,7 @@ def obtener_id_usuario(nombre, apellido):
     row = cursor.fetchone()
     cursor.close()
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
+
 def guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago, id_usuario):
     cursor = db.cursor()
     
