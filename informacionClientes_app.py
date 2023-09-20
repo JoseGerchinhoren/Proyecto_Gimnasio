@@ -35,7 +35,7 @@ def obtener_nombres_clientes():
 def obtener_pagos_cliente(id_cliente):
     cursor = db.cursor()
     query = """
-    SELECT fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago, idUsuario
+    SELECT idPago, fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago, idUsuario
     FROM Pago
     WHERE idCliente = ?
     ORDER BY idPago DESC
@@ -82,9 +82,9 @@ def main():
             if pagos_cliente:
                 st.write("Pagos del Cliente:")
                 # Crear una lista de tuplas a partir de los datos de pagos_cliente
-                pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6]) for p in pagos_cliente]
+                pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]) for p in pagos_cliente]
                 # Crear el DataFrame con las columnas especificadas
-                pagos_df = pd.DataFrame(pagos_data, columns=["fechaPago", "idCliente", "nombreApellidoCliente", "montoPago", "metodoPago", "detallePago", "idUsuario"])
+                pagos_df = pd.DataFrame(pagos_data, columns=["idPago","fechaPago", "idCliente", "nombreApellidoCliente", "montoPago", "metodoPago", "detallePago", "idUsuario"])
                 st.dataframe(pagos_df)
             else: st.write(f"El cliente {cliente_info[3]} no tiene pagos registrados.")
 
