@@ -32,6 +32,7 @@ def obtener_id_usuario(nombre, apellido):
     cursor.close()
     
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
+
 def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario):
     cursor = conn.cursor()
     

@@ -1,7 +1,7 @@
 -- Creación de la tabla "cliente"
 CREATE TABLE Cliente (
     idCliente int PRIMARY KEY IDENTITY(1,1),
-    fechaInscripcion date,
+    fechaInscripcion datetime,
     fechaNacimiento date,
     nombreApellido varchar(255),
     email varchar(255),
@@ -13,5 +13,4 @@ CREATE TABLE Cliente (
     objetivo varchar(50),
     observaciones text,
 	idUsuario varchar(50),
-    horaRegistro datetime
 	);
