@@ -33,16 +33,16 @@ def obtener_id_usuario(nombre, apellido):
     
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
 
-def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario):
+def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario):
     cursor = conn.cursor()
     
     # Obtener el ID de usuario a partir del nombre y apellido del usuario
     nombre, apellido = idUsuario.split(" ")  # Divide el nombre y el apellido
     id_usuario = obtener_id_usuario(nombre, apellido)
-    
+
     # Ejecutar el stored procedure con los parámetros requeridos
-    cursor.execute("EXEC InsertarCliente ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
-                   (fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, id_usuario))
+    cursor.execute("EXEC InsertarCliente ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+                   (fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, id_usuario))
     
     conn.commit()
     cursor.close()
@@ -50,9 +50,11 @@ def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, email,
 def main():
     st.title("Ingresar Datos de Clientes")
     
-    fecha_inscripcion = st.date_input("Fecha de Inscripción:")
+    fecha_inscripcion = st.date_input("Fecha de Inscripción:") 
     nombre_apellido = st.text_input("Nombre/s y Apellido/s del Cliente:")
     fecha_nacimiento = st.date_input("Fecha de Nacimiento:")
+    genero_options = ["Masculino", "Femenino", "Otro"]
+    genero = st.selectbox("Genero:", genero_options)
     email = st.text_input("Email:")
     telefono = st.text_input("Número de Teléfono Celular:")
     domicilio = st.text_input("Domicilio:")
@@ -67,7 +69,7 @@ def main():
     idUsuario = st.session_state.get("user_nombre_apellido", "")
     
     if st.button("Guardar Cliente"):
-        guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario)
+        guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario)
         st.success(f"Cliente {nombre_apellido} guardado exitosamente!")
 
 if __name__ == "__main__":
