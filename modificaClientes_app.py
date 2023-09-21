@@ -6,38 +6,30 @@ import json
 with open("../config.json") as config_file:
     config = json.load(config_file)
 
-# Función para conectar a la base de datos
-def conectar_bd():
-    return pyodbc.connect(
-        driver=config["driver"],
-        server=config["server"],
-        database=config["database"],
-        uid=config["user"],
-        pwd=config["password"]
-    )
+# Conexión a la base de datos SQL Server
+db = pyodbc.connect(
+    driver=config["driver"],
+    server=config["server"],
+    database=config["database"],
+    uid=config["user"],
+    pwd=config["password"]
+)
 
 # Función para obtener los datos de un cliente por nombre y apellido
 def obtener_datos_cliente(nombre_apellido):
-    conn = conectar_bd()
-    cursor = conn.cursor()
-    
+    cursor = db.cursor()
     query = """
     SELECT * FROM Cliente
     WHERE nombreApellido = ?
     """
-    
     cursor.execute(query, (nombre_apellido,))
     row = cursor.fetchone()
-    
     cursor.close()
-    conn.close()
-    
     return row  # Devuelve una fila de datos del cliente o None si no se encuentra
 
 # Función para obtener el ID de usuario a partir de su nombre y apellido
 def obtener_id_usuario(nombre, apellido):
-    conn = conectar_bd()
-    cursor = conn.cursor()
+    cursor = db.cursor()
     
     query = """
     SELECT idUsuario
@@ -49,8 +41,7 @@ def obtener_id_usuario(nombre, apellido):
     row = cursor.fetchone()
     
     cursor.close()
-    conn.close()
-    
+
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
 
 # Función para editar los datos de un cliente
@@ -59,8 +50,7 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario, campo_
         st.warning("El campo 'idCliente' no se puede editar.")
         return
     
-    conn = conectar_bd()
-    cursor = conn.cursor()
+    cursor = db.cursor()
     
     query = f"""
     UPDATE Cliente
@@ -70,7 +60,7 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario, campo_
     
     values = (nuevo_valor, id_cliente)
     cursor.execute(query, values)
-    conn.commit()
+    db.commit()
     
     # Obtener el ID de usuario a partir del nombre y apellido del usuario
     nombre, apellido = nombre_usuario.split(" ")  # Divide el nombre y el apellido
@@ -83,29 +73,25 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario, campo_
     """
     values_modificacion = (id_cliente, id_usuario_modificacion, campo_modificado, nuevo_valor)
     cursor.execute(query_modificacion, values_modificacion)
-    conn.commit()
+    db.commit()
     
     cursor.close()
-    conn.close()
 
 # Función para obtener los nombres de los clientes
 def obtener_nombres_clientes():
-    conn = conectar_bd()
-    cursor = conn.cursor()
+    cursor = db.cursor()
     
     query = "SELECT nombreApellido FROM Cliente"
     cursor.execute(query)
     nombres_clientes = [cliente[0] for cliente in cursor.fetchall()]
     
     cursor.close()
-    conn.close()
     
     return nombres_clientes
 
 # Función para eliminar un cliente por ID
 def eliminar_cliente(id_cliente, nombre_cliente):
-    conn = conectar_bd()
-    cursor = conn.cursor()
+    cursor = db.cursor()
 
     try:
         # Eliminar el cliente de la tabla Cliente
@@ -115,7 +101,7 @@ def eliminar_cliente(id_cliente, nombre_cliente):
     
         cursor.execute(query_eliminar_cliente, (id_cliente,))
     
-        conn.commit()
+        db.commit()
         st.success(f"Se ha eliminado el cliente '{nombre_cliente}' correctamente.")
     except pyodbc.IntegrityError as e:
         st.error(f"No se puede eliminar el cliente '{nombre_cliente}' debido a restricciones de integridad en la base de datos. Asegúrese de que no existan registros relacionados en otras tablas.")
@@ -123,30 +109,39 @@ def eliminar_cliente(id_cliente, nombre_cliente):
         st.error(f"Se produjo un error al eliminar el cliente '{nombre_cliente}': {str(e)}")
     finally:
         cursor.close()
-        conn.close()
 
 def main():
     st.title("Modificar Datos de Clientes")
-    
-    # Obtener nombre y apellido del cliente para editar o eliminar
-    nombre_apellido = st.selectbox("Seleccione un Cliente:", obtener_nombres_clientes())
-    
-    if nombre_apellido:
+
+    nombres_clientes = obtener_nombres_clientes()
+    nombre_cliente_input = st.text_input("Ingrese el Nombre y Apellido del Cliente:")
+    nombre_cliente = None
+
+    if nombre_cliente_input:
+        nombres_coincidentes = [nombre for nombre in nombres_clientes if nombre_cliente_input.lower() in nombre.lower()]
+        if nombres_coincidentes:
+            nombre_cliente = st.selectbox("Seleccione un nombre:", nombres_coincidentes)
+
+    if nombre_cliente:
         # Obtener los datos del cliente
-        cliente_data = obtener_datos_cliente(nombre_apellido)
+        cliente_data = obtener_datos_cliente(nombre_cliente)
         
         if cliente_data:
             st.write("Información del Cliente:")
             
             # Obtener el orden de los campos en la tabla "Cliente"
-            campos_cliente = ["idCliente", "fechaInscripcion", "fechaNacimiento", "nombreApellido", "email", "telefono", "domicilio", "dni", "requiereInstructor", "pesoInicial", "objetivo", "observaciones"]
+            campos_cliente = ["idCliente", "fechaInscripcion", "horaInscripcion", "fechaNacimiento", "nombreApellido", "genero","email", "telefono", "domicilio", "dni", "requiereInstructor", "pesoInicial", "objetivo", "observaciones"]
+
+#idCliente	fechaInscripcion	horaInscripcion	fechaNacimiento	nombreApellido	genero	email	telefono	domicilio	dni	requiereInstructor	pesoInicial	objetivo	observaciones	idUsuario
             
             # Texto amigable para mostrar los campos
             campos_amigables = {
                 "idCliente": "ID de Cliente",
                 "fechaInscripcion": "Fecha de Inscripción",
+                "horaInscripcion": "Hora de Inscripción",
                 "fechaNacimiento": "Fecha de Nacimiento",
                 "nombreApellido": "Nombre y Apellido",
+                "genero": "Genero",
                 "email": "Email",
                 "telefono": "Teléfono",
                 "domicilio": "Domicilio",
