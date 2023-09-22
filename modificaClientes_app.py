@@ -131,8 +131,6 @@ def main():
             
             # Obtener el orden de los campos en la tabla "Cliente"
             campos_cliente = ["idCliente", "fechaInscripcion", "horaInscripcion", "fechaNacimiento", "nombreApellido", "genero","email", "telefono", "domicilio", "dni", "requiereInstructor", "pesoInicial", "objetivo", "observaciones"]
-
-#idCliente	fechaInscripcion	horaInscripcion	fechaNacimiento	nombreApellido	genero	email	telefono	domicilio	dni	requiereInstructor	pesoInicial	objetivo	observaciones	idUsuario
             
             # Texto amigable para mostrar los campos
             campos_amigables = {
