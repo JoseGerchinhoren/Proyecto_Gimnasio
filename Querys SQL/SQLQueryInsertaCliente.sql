@@ -20,4 +20,17 @@ VALUES
   ('2023-09-28', '14:30:25', '1991-08-12', 'Pablo Ramirez', 'Hombre', 'pabloramirez@example.com', '222222222', 'Paseo 444, Salta, Argentina', '78901234', 0, 75, 'Mantener', 'Observación 16', 2),
   ('2023-09-29', '10:15:55', '1986-02-25', 'Lorena Torres', 'Mujer', 'lorenatorres@example.com', '111111111', 'Calle 666, Salta, Argentina', '89012345', 1, 70, 'Bajar de Peso', 'Observación 17', 3),
   ('2023-09-30', '13:40:30', '1999-05-18', 'Carlos Gomez', 'Hombre', 'carlosgomez@example.com', '123123123', 'Avenida 999, Salta, Argentina', '90123456', 0, 85, 'Mantener', 'Observación 18', 4),
-  ('2023-10-01', '16:00:45', '1989-10-02', 'Susana Rodriguez', 'Mujer', 'susanarodriguez@example.com', '987987987', 'Plaza 777, Salta, Argentina', '01234567', 1, 75, 'Bajar de Peso', 'Observación 19', 5);
+  ('2023-10-01', '16:00:45', '1989-10-02', 'Susana Rodriguez', 'Mujer', 'susanarodriguez@example.com', '987987987', 'Plaza 777, Salta, Argentina', '01234567', 1, 75, 'Bajar de Peso', 'Observación 19', 5),
+  ('2023-09-15', '14:30:00', '1985-03-10', 'Marta Gonzalez', 'Mujer', 'martagonzalez@example.com', '555555555', 'Calle 123, Salta, Argentina', '12345678', 1, 65, 'Mantener', 'Sin observaciones', 2),
+  ('2023-09-16', '11:45:00', '1990-07-20', 'Luis Ramirez', 'Hombre', 'luisramirez@example.com', '777777777', 'Avenida 456, Salta, Argentina', '23456789', 0, 80, 'Subir de Peso', 'Observación 11', 3),
+  ('2023-09-17', '09:15:00', '1995-05-05', 'Sofia Fernandez', 'Mujer', 'sofiafernandez@example.com', '888888888', 'Callejon 789, Salta, Argentina', '34567890', 1, 55, 'Bajar de Peso', 'Observación 12', 4),
+  ('2023-09-18', '16:00:00', '1983-12-15', 'Juan Martinez', 'Hombre', 'juanmartinez@example.com', '999999999', 'Plaza 101, Salta, Argentina', '45678901', 0, 75, 'Mantener', 'Observación 13', 5),
+  ('2023-09-19', '13:20:00', '1998-10-30', 'Carla Lopez', 'Mujer', 'carlalopez@example.com', '111111111', 'Avenida 222, Salta, Argentina', '56789012', 1, 70, 'Bajar de Peso', 'Observación 14', 1),
+  ('2023-09-20', '10:45:00', '1977-08-25', 'Pedro Rodriguez', 'Hombre', 'pedrorodriguez@example.com', '666666666', 'Camino 333, Salta, Argentina', '67890123', 0, 90, 'Subir de Peso', 'Observación 15', 2),
+  ('2023-09-21', '15:10:00', '1992-06-12', 'Lorena Gomez', 'Mujer', 'lorenagomez@example.com', '333333333', 'Paseo 444, Salta, Argentina', '78901234', 1, 60, 'Mantener', 'Observación 16', 3),
+  ('2023-09-22', '12:30:00', '1989-01-08', 'Carlos Ramirez', 'Hombre', 'carlosramirez@example.com', '222222222', 'Calle 555, Salta, Argentina', '89012345', 0, 85, 'Bajar de Peso', 'Observación 17', 4),
+  ('2023-09-23', '08:55:00', '1993-09-18', 'Maria Torres', 'Mujer', 'mariatorres@example.com', '987987987', 'Plaza 666, Salta, Argentina', '01234567', 1, 75, 'Mantener', 'Observación 18', 5),
+  ('2023-09-24', '14:15:00', '1980-11-28', 'Daniel Gonzalez', 'Hombre', 'danielgonzalez@example.com', '555555555', 'Avenida 777, Salta, Argentina', '12345678', 0, 70, 'Subir de Peso', 'Observación 19', 1);
+
+
+
