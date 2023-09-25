@@ -73,7 +73,7 @@ def main():
     
     monto_pago = st.number_input("Monto del Pago:", min_value=0, format="%d", key="monto_pago")
     # Campo de método de pago como un desplegable
-    metodo_pago_options = ["Efectivo", "Transferencia", "Tarjeta", "Otro"]
+    metodo_pago_options = ["Efectivo", "Transferencia", "Tarjeta de Crédito", "Tarjeta de Débito", "Otro"]
     metodo_pago = st.selectbox("Método de Pago:", metodo_pago_options, key="metodo_pago")
     
     detalle_pago = st.text_input("Detalle del Pago:", key="detalle_pago")
