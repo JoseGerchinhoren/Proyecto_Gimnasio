@@ -29,18 +29,19 @@ def obtener_id_usuario(nombre, apellido):
     cursor.close()
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
 
-def guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago, id_usuario):
+def guardar_pago(fecha_pago, id_cliente, monto_pago, metodo_pago, detalle_pago, id_usuario):
     cursor = db.cursor()
     
-    # Agrega la hora actual a la fecha de pago
-    hora_actual = datetime.datetime.now().strftime("%H:%M:%S")
-    fecha_pago = f"{fecha_pago} {hora_actual}"
-    
-    query = "INSERT INTO Pago (fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago, idUsuario) VALUES (?, ?, ?, ?, ?, ?, ?)"
-    values = (fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago, id_usuario)  # Agrega idUsuario
-    cursor.execute(query, values)
-    db.commit()
-    cursor.close()
+    try:
+        # Llamar al stored procedure para insertar el pago
+        cursor.execute("EXEC InsertarPago ?, ?, ?, ?, ?, ?", fecha_pago, id_cliente, monto_pago, metodo_pago, detalle_pago, id_usuario)
+        db.commit()
+        st.success("Pago guardado exitosamente!")
+    except pyodbc.Error as e:
+        db.rollback()
+        st.error(f"Error al guardar el pago: {str(e)}")
+    finally:
+        cursor.close()
     
 def obtener_clientes():
     cursor = db.cursor()
@@ -90,8 +91,7 @@ def main():
                 id_usuario = obtener_id_usuario(nombre_usuario, apellido_usuario)
                 
                 if id_usuario:
-                    guardar_pago(fecha_pago, id_cliente, nombre_apellido, monto_pago, metodo_pago, detalle_pago, id_usuario)
-                    st.success("Pago guardado exitosamente!")
+                    guardar_pago(fecha_pago, id_cliente, monto_pago, metodo_pago, detalle_pago, id_usuario)
                 else:
                     st.warning("No se pudo obtener el ID de usuario.")
             else:
