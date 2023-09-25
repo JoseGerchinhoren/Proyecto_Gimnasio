@@ -35,15 +35,15 @@ def obtener_nombres_clientes():
 def obtener_pagos_cliente(id_cliente):
     cursor = db.cursor()
     query = """
-    SELECT idPago, fechaPago, idCliente, nombreApellidoCliente, montoPago, metodoPago, detallePago, idUsuario
+    SELECT idCliente, idPago, fechaPago, montoPago, metodoPago, detallePago, idUsuario
     FROM Pago
     WHERE idCliente = ?
     ORDER BY idPago DESC
     """
     cursor.execute(query, id_cliente)
-    gastos_cliente = cursor.fetchall()
+    pagos_cliente = cursor.fetchall()
     cursor.close()
-    return gastos_cliente
+    return pagos_cliente
 
 def main():
     st.title("Información del Cliente")
@@ -61,6 +61,7 @@ def main():
         cliente_info = obtener_info_cliente(nombre_cliente)
         if cliente_info:
             st.write("Información del Cliente:")
+            st.write(f"ID del Cliente: {cliente_info[0]}")
             st.write(f"Nombre y Apellido: {cliente_info[4]}")
             st.write(f"Fecha de Inscripción: {cliente_info[1]}")
             st.write(f"Hora de Inscripción: {cliente_info[2]}")
@@ -82,13 +83,14 @@ def main():
             pagos_cliente = obtener_pagos_cliente(id_cliente)
 
             if pagos_cliente:
-                st.write("Pagos del Cliente:")
+                st.write("Pagos del Cliente, del más nuevo al más antiguo:")
                 # Crear una lista de tuplas a partir de los datos de pagos_cliente
-                pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]) for p in pagos_cliente]
+                pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6]) for p in pagos_cliente]
                 # Crear el DataFrame con las columnas especificadas
-                pagos_df = pd.DataFrame(pagos_data, columns=["idPago","fechaPago", "idCliente", "nombreApellidoCliente", "montoPago", "metodoPago", "detallePago", "idUsuario"])
+                pagos_df = pd.DataFrame(pagos_data, columns=["idCliente", "idPago", "fechaPago", "montoPago", "metodoPago", "detallePago", "idUsuario"])
                 st.dataframe(pagos_df)
-            else: st.write(f"El cliente {cliente_info[3]} no tiene pagos registrados.")
+            else:
+                st.write("El cliente no tiene pagos registrados.")
 
         else:
             st.warning("Cliente no encontrado.")

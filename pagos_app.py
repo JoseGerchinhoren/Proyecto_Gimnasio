@@ -1,7 +1,6 @@
 import streamlit as st
 import pyodbc
 import json
-import datetime
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
