@@ -83,7 +83,7 @@ def main():
             pagos_cliente = obtener_pagos_cliente(id_cliente)
 
             if pagos_cliente:
-                st.write("Pagos del Cliente, del más nuevo al más antiguo:")
+                st.write("Pagos del Cliente, ordenados del más nuevo al más antiguo:")
                 # Crear una lista de tuplas a partir de los datos de pagos_cliente
                 pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6]) for p in pagos_cliente]
                 # Crear el DataFrame con las columnas especificadas

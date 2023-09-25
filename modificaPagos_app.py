@@ -41,6 +41,7 @@ def obtener_pagos_cliente(nombre_apellido):
     FROM Pago AS P
     INNER JOIN Cliente AS C ON P.idCliente = C.idCliente
     WHERE C.nombreApellido = ?
+    ORDER BY idPago DESC
     """
     
     cursor.execute(query, (nombre_apellido,))
@@ -122,7 +123,7 @@ def main():
         pagos_cliente = obtener_pagos_cliente(selected_cliente)
         
         if pagos_cliente:
-            st.write(f"Pagos de {selected_cliente}:")
+            st.write(f"Pagos de {selected_cliente}, ordenados del más nuevo al más antiguo:")
 
             # Crear una lista de tuplas a partir de los datos de pagos_cliente
             pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5]) for p in pagos_cliente]
@@ -140,7 +141,7 @@ def main():
                     
                     # Encontrar el pago seleccionado
                     pago_seleccionado = next(pago for pago in pagos_cliente if pago[1] == id_pago)
-                    id_pago, fecha_pago, monto_pago, metodo_pago, detalle_pago = pago_seleccionado
+                    idCliente, id_pago, fecha_pago, monto_pago, metodo_pago, detalle_pago = pago_seleccionado
                     
                     # Mostrar toda la información del pago
                     st.write(f"ID de Pago: {id_pago}")
