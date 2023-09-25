@@ -1,6 +1,7 @@
 import streamlit as st
 import pyodbc
 import json
+import pandas as pd
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -21,7 +22,7 @@ def obtener_nombres_clientes():
     conn = conectar_bd()
     cursor = conn.cursor()
     
-    query = "SELECT nombreApellidoCliente FROM Pago GROUP BY nombreApellidoCliente"
+    query = "SELECT C.nombreApellido FROM Cliente AS C INNER JOIN Pago AS P ON C.idCliente = P.idCliente GROUP BY C.nombreApellido"
     cursor.execute(query)
     nombres_clientes = [cliente[0] for cliente in cursor.fetchall()]
     
@@ -36,9 +37,10 @@ def obtener_pagos_cliente(nombre_apellido):
     cursor = conn.cursor()
     
     query = """
-    SELECT idPago, fechaPago, montoPago, metodoPago, detallePago
-    FROM Pago
-    WHERE nombreApellidoCliente = ?
+    SELECT P.idCliente, P.idPago, P.fechaPago, P.montoPago, P.metodoPago, P.detallePago
+    FROM Pago AS P
+    INNER JOIN Cliente AS C ON P.idCliente = C.idCliente
+    WHERE C.nombreApellido = ?
     """
     
     cursor.execute(query, (nombre_apellido,))
@@ -121,20 +123,23 @@ def main():
         
         if pagos_cliente:
             st.write(f"Pagos de {selected_cliente}:")
-            
-            # Mostrar los pagos del cliente en una tabla
-            st.write(pagos_cliente)
+
+            # Crear una lista de tuplas a partir de los datos de pagos_cliente
+            pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5]) for p in pagos_cliente]
+            # Crear el DataFrame con las columnas especificadas
+            pagos_df = pd.DataFrame(pagos_data, columns=["idCliente", "idPago", "fechaPago", "montoPago", "metodoPago", "detallePago"])
+            st.dataframe(pagos_df)
             
             # Permitir al usuario seleccionar un pago para editar por su ID
             id_pago = st.number_input("ID del Pago a Editar", min_value=1)
 
             if id_pago:
                 # Verificar si el ID del pago ingresado pertenece al cliente
-                if any(pago[0] == id_pago for pago in pagos_cliente):
+                if any(pago[1] == id_pago for pago in pagos_cliente):
                     st.write("Información del Pago:")
                     
                     # Encontrar el pago seleccionado
-                    pago_seleccionado = next(pago for pago in pagos_cliente if pago[0] == id_pago)
+                    pago_seleccionado = next(pago for pago in pagos_cliente if pago[1] == id_pago)
                     id_pago, fecha_pago, monto_pago, metodo_pago, detalle_pago = pago_seleccionado
                     
                     # Mostrar toda la información del pago
