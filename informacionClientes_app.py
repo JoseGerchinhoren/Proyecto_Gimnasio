@@ -2,6 +2,7 @@ import streamlit as st
 import pyodbc
 import json
 import pandas as pd
+from datetime import datetime
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -45,8 +46,28 @@ def obtener_pagos_cliente(id_cliente):
     cursor.close()
     return pagos_cliente
 
+def calcular_estado_cuota(ultima_fecha_pago, fecha_actual):
+    if ultima_fecha_pago:
+        diferencia_meses = (fecha_actual.year - ultima_fecha_pago.year) * 12 + (fecha_actual.month - ultima_fecha_pago.month)
+    else:
+        diferencia_meses = None
+
+    if diferencia_meses is None:
+        indicador_texto = "Sin pagos registrados"
+        indicador_estilo = "info"
+    elif diferencia_meses >= 1:
+        indicador_texto = "Cuota vencida"
+        indicador_estilo = "danger"
+    else:
+        indicador_texto = "Cuota al día"
+        indicador_estilo = "success"
+
+    indicador_html = f'<div class="alert alert-{indicador_estilo}">{indicador_texto}</div>'
+    return indicador_html
+
 def main():
     st.title("Información del Cliente")
+    st.title("Buscar Cliente")
     
     nombres_clientes = obtener_nombres_clientes()
     nombre_cliente_input = st.text_input("Ingrese el Nombre y Apellido del Cliente:")
@@ -60,7 +81,31 @@ def main():
     if nombre_cliente:
         cliente_info = obtener_info_cliente(nombre_cliente)
         if cliente_info:
-            st.write("Información del Cliente:")
+            st.title("Estado de Cuota del Cliente")
+            # Obtener el ID del cliente
+            id_cliente = cliente_info[0]
+
+            # Obtener los pagos del cliente
+            pagos_cliente = obtener_pagos_cliente(id_cliente)
+
+            # Calcular y mostrar el indicador de estado de la cuota
+            indicador_html = calcular_estado_cuota(pagos_cliente[0][2] if pagos_cliente else None, datetime.now())
+            st.markdown(indicador_html, unsafe_allow_html=True)
+
+            
+            st.title("Pagos del Cliente")
+            
+            if pagos_cliente:
+                st.write("Ordenados del más nuevo al más antiguo:")
+                # Crear una lista de tuplas a partir de los datos de pagos_cliente
+                pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6]) for p in pagos_cliente]
+                # Crear el DataFrame con las columnas especificadas
+                pagos_df = pd.DataFrame(pagos_data, columns=["idCliente", "idPago", "fechaPago", "montoPago", "metodoPago", "detallePago", "idUsuario"])
+                st.dataframe(pagos_df)
+            else:
+                st.write("El cliente no tiene pagos registrados.")
+            
+            st.title("Información del Cliente")
             st.write(f"ID del Cliente: {cliente_info[0]}")
             st.write(f"Nombre y Apellido: {cliente_info[4]}")
             st.write(f"Fecha de Inscripción: {cliente_info[1]}")
@@ -75,22 +120,6 @@ def main():
             st.write(f"Peso Inicial: {cliente_info[11]}")
             st.write(f"Objetivo: {cliente_info[12]}")
             st.write(f"Observaciones: {cliente_info[13]}")
-
-            # Obtener el ID del cliente
-            id_cliente = cliente_info[0]
-
-            # Obtener los pagos del cliente
-            pagos_cliente = obtener_pagos_cliente(id_cliente)
-
-            if pagos_cliente:
-                st.write("Pagos del Cliente, ordenados del más nuevo al más antiguo:")
-                # Crear una lista de tuplas a partir de los datos de pagos_cliente
-                pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6]) for p in pagos_cliente]
-                # Crear el DataFrame con las columnas especificadas
-                pagos_df = pd.DataFrame(pagos_data, columns=["idCliente", "idPago", "fechaPago", "montoPago", "metodoPago", "detallePago", "idUsuario"])
-                st.dataframe(pagos_df)
-            else:
-                st.write("El cliente no tiene pagos registrados.")
 
         else:
             st.warning("Cliente no encontrado.")
