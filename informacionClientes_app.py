@@ -3,6 +3,7 @@ import pyodbc
 import json
 import pandas as pd
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 # Cargar configuración desde el archivo config.json
 with open("../config.json") as config_file:
@@ -53,17 +54,31 @@ def calcular_estado_cuota(ultima_fecha_pago, fecha_actual):
         diferencia_meses = None
 
     if diferencia_meses is None:
-        indicador_texto = "Sin pagos registrados"
-        indicador_estilo = "info"
+        estado_texto = "Sin pagos registrados"
+        estado_color = "gray"
     elif diferencia_meses >= 1:
-        indicador_texto = "Cuota vencida"
-        indicador_estilo = "danger"
+        estado_texto = "Cuota vencida"
+        estado_color = "red"
     else:
-        indicador_texto = "Cuota al día"
-        indicador_estilo = "success"
+        estado_texto = "Cuota al día"
+        estado_color = "green"
 
-    indicador_html = f'<div class="alert alert-{indicador_estilo}">{indicador_texto}</div>'
-    return indicador_html
+    return estado_texto, estado_color
+
+def quitar_marco(fig, ax):
+    # Eliminar los bordes de la figura
+    fig.patch.set_facecolor('white')
+    ax.set_frame_on(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.tick_params(axis='both', which='both', bottom=False, top=False, left=False, right=False)
+
+    # Eliminar los márgenes del eje x y del eje y
+    ax.margins(0, 0)
+
+    return fig, ax
 
 def main():
     st.title("Información del Cliente")
@@ -87,12 +102,25 @@ def main():
 
             # Obtener los pagos del cliente
             pagos_cliente = obtener_pagos_cliente(id_cliente)
-
-            # Calcular y mostrar el indicador de estado de la cuota
-            indicador_html = calcular_estado_cuota(pagos_cliente[0][2] if pagos_cliente else None, datetime.now())
-            st.markdown(indicador_html, unsafe_allow_html=True)
-
             
+            # Obtener la figura y la caja de ejes
+            fig, ax = plt.subplots(figsize=(4, 1))
+
+            # Calcular el estado de la cuota
+            estado_texto, estado_color = calcular_estado_cuota(pagos_cliente[0][2] if pagos_cliente else None, datetime.now())
+
+            # Agregar el texto y el sector de estado
+            ax.bar([1], [1], color=estado_color)
+            ax.text(1, 0.5, estado_texto, ha='center', va='center', fontsize=16, color='white')
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+            # Quitar el marco
+            fig, ax = quitar_marco(fig, ax)
+
+            # Mostrar el gráfico
+            st.pyplot(fig, use_container_width=True, bbox_inches='tight', pad_inches=0)
+
             st.title("Pagos del Cliente")
             
             if pagos_cliente:
