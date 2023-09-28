@@ -94,9 +94,10 @@ def main():
             nombre_cliente = st.selectbox("Seleccione un nombre:", nombres_coincidentes)
     
     if nombre_cliente:
+        st.title(f"Cliente seleccionado: {nombre_cliente}")
         cliente_info = obtener_info_cliente(nombre_cliente)
         if cliente_info:
-            st.title("Estado de Cuota del Cliente")
+            st.title("Estado de Cuota")
             # Obtener el ID del cliente
             id_cliente = cliente_info[0]
 
@@ -104,14 +105,14 @@ def main():
             pagos_cliente = obtener_pagos_cliente(id_cliente)
             
             # Obtener la figura y la caja de ejes
-            fig, ax = plt.subplots(figsize=(4, 1))
+            fig, ax = plt.subplots(figsize=(8, 1))
 
             # Calcular el estado de la cuota
             estado_texto, estado_color = calcular_estado_cuota(pagos_cliente[0][2] if pagos_cliente else None, datetime.now())
 
             # Agregar el texto y el sector de estado
             ax.bar([1], [1], color=estado_color)
-            ax.text(1, 0.5, estado_texto, ha='center', va='center', fontsize=16, color='white')
+            ax.text(1, 0.5, estado_texto, ha='center', va='center', fontsize=25, color='white')
             ax.set_xticks([])
             ax.set_yticks([])
 
@@ -121,7 +122,7 @@ def main():
             # Mostrar el gráfico
             st.pyplot(fig, use_container_width=True, bbox_inches='tight', pad_inches=0)
 
-            st.title("Pagos del Cliente")
+            st.title("Pagos")
             
             if pagos_cliente:
                 st.write("Ordenados del más nuevo al más antiguo:")

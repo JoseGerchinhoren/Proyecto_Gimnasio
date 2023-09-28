@@ -1,6 +1,8 @@
 from datetime import datetime
+from dateutil import relativedelta
 
-def calcular_estado_cuota(ultima_fecha_pago, fecha_actual, fecha_vencimiento):
+def calcular_estado_cuota(ultima_fecha_pago, fecha_actual):
+    fecha_vencimiento = ultima_fecha_pago + relativedelta.relativedelta(months=1)
     if ultima_fecha_pago:
         diferencia_dias = fecha_actual - ultima_fecha_pago
         diferencia_dias_vencimiento = fecha_vencimiento - fecha_actual
@@ -24,7 +26,7 @@ def calcular_estado_cuota(ultima_fecha_pago, fecha_actual, fecha_vencimiento):
 fecha_actual = datetime.now()
 
 # Obtener la fecha del último pago
-fecha_ultimo_pago = datetime(2023, 8, 28)
+fecha_ultimo_pago = datetime(2023, 8, 20)
 
 # Llamar a la función
 estado_texto, estado_color = calcular_estado_cuota(fecha_ultimo_pago, fecha_actual)
