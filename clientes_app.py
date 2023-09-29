@@ -40,12 +40,16 @@ def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero
     nombre, apellido = idUsuario.split(" ")  # Divide el nombre y el apellido
     id_usuario = obtener_id_usuario(nombre, apellido)
 
-    # Ejecutar el stored procedure con los parámetros requeridos
-    cursor.execute("EXEC InsertarCliente ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
-                   (fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, id_usuario))
-    
-    conn.commit()
-    cursor.close()
+    try:
+        # Ejecutar el stored procedure con los parámetros requeridos
+        cursor.execute("EXEC InsertarCliente ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+                    (fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, id_usuario))
+        conn.commit()
+    except pyodbc.Error as e:
+        conn.rollback()
+        st.error(f"Error al guardar el Cliente: {str(e)}")
+    finally:
+        cursor.close()
 
 def main():
     st.title("Ingresar Datos de Clientes")
@@ -69,8 +73,11 @@ def main():
     idUsuario = st.session_state.get("user_nombre_apellido", "")
     
     if st.button("Guardar Cliente"):
-        guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario)
-        st.success(f"Cliente {nombre_apellido} guardado exitosamente!")
-
+        try:
+            guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario)
+            st.success(f"Cliente {nombre_apellido} guardado exitosamente!")
+        except Exception as e:
+            st.error(f"Error al guardar el cliente: {str(e)}")
+        
 if __name__ == "__main__":
     main()

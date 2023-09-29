@@ -3,6 +3,7 @@ import pyodbc
 import json
 import pandas as pd
 from datetime import datetime
+from dateutil import relativedelta
 import matplotlib.pyplot as plt
 
 # Cargar configuración desde el archivo config.json
@@ -49,19 +50,25 @@ def obtener_pagos_cliente(id_cliente):
 
 def calcular_estado_cuota(ultima_fecha_pago, fecha_actual):
     if ultima_fecha_pago:
-        diferencia_meses = (fecha_actual.year - ultima_fecha_pago.year) * 12 + (fecha_actual.month - ultima_fecha_pago.month)
-    else:
-        diferencia_meses = None
+        # Obtener la fecha de hoy como datetime.date si es un objeto datetime.datetime
+        if isinstance(fecha_actual, datetime):
+            fecha_actual = fecha_actual.date()
 
-    if diferencia_meses is None:
+        # Calcular la fecha de vencimiento (1 mes después de la última fecha de pago)
+        fecha_vencimiento = ultima_fecha_pago + relativedelta.relativedelta(months=1)
+
+        if fecha_actual < fecha_vencimiento:
+            estado_texto = "Cuota al día"
+            estado_color = "green"
+        elif fecha_actual == fecha_vencimiento:
+            estado_texto = "Vence hoy"
+            estado_color = "yellow"
+        else:
+            estado_texto = "Cuota vencida"
+            estado_color = "red"
+    else:
         estado_texto = "Sin pagos registrados"
         estado_color = "gray"
-    elif diferencia_meses >= 1:
-        estado_texto = "Cuota vencida"
-        estado_color = "red"
-    else:
-        estado_texto = "Cuota al día"
-        estado_color = "green"
 
     return estado_texto, estado_color
 
