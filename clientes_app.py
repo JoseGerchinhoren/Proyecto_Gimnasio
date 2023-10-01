@@ -16,6 +16,14 @@ conn = pyodbc.connect(
     pwd=config["password"]
 )
 
+# Función para validar el formato de fecha DD/MM/AAAA
+def validar_fecha(fecha):
+    try:
+        datetime.strptime(fecha, '%d/%m/%Y')
+        return True
+    except ValueError:
+        return False
+
 # Función para obtener el ID de usuario a partir de su nombre y apellido
 def obtener_id_usuario(nombre, apellido):
     cursor = conn.cursor()
@@ -41,10 +49,19 @@ def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero
     id_usuario = obtener_id_usuario(nombre, apellido)
 
     try:
+        # Validar el formato de la fecha de nacimiento
+        if not validar_fecha(fecha_nacimiento):
+            st.error("Error: La fecha de nacimiento no se ingresó en el formato correcto (DD/MM/AAAA).")
+            return
+        
+        # Convertir la fecha de nacimiento al formato 'AAAA-MM-DD'
+        fecha_nacimiento_sql = datetime.strptime(fecha_nacimiento, '%d/%m/%Y').strftime('%Y-%m-%d')
+
         # Ejecutar el stored procedure con los parámetros requeridos
         cursor.execute("EXEC InsertarCliente ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
-                    (fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, id_usuario))
+                    (fecha_inscripcion, fecha_nacimiento_sql, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, id_usuario))
         conn.commit()
+        st.success(f"Cliente {nombre_apellido} guardado exitosamente!")
     except pyodbc.Error as e:
         conn.rollback()
         st.error(f"Error al guardar el Cliente: {str(e)}")
@@ -56,15 +73,15 @@ def main():
     
     fecha_inscripcion = st.date_input("Fecha de Inscripción:") 
     nombre_apellido = st.text_input("Nombre/s y Apellido/s del Cliente:")
-    fecha_nacimiento = st.date_input("Fecha de Nacimiento:")
+    fecha_nacimiento = st.text_input("Fecha de Nacimiento (DD/MM/AAAA):")
     genero_options = ["Masculino", "Femenino", "Otro"]
-    genero = st.selectbox("Genero:", genero_options)
+    genero = st.selectbox("Género:", genero_options)
     email = st.text_input("Email:")
     telefono = st.text_input("Número de Teléfono Celular:")
     domicilio = st.text_input("Domicilio:")
     dni = st.text_input("Número de DNI:")
     requiere_instructor = st.checkbox("Requiere Instructor")
-    peso_inicial = st.number_input("Peso Inicial:", step=1, format="%d")
+    peso_inicial = st.number_input("Peso Inicial:", step=1)
     objetivo_options = ["Sin especificar", "Bajar de Peso", "Subir de Peso", "Mantener"]
     objetivo = st.selectbox("Objetivo:", objetivo_options)
     observaciones = st.text_area("Observaciones")
@@ -75,7 +92,6 @@ def main():
     if st.button("Guardar Cliente"):
         try:
             guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario)
-            st.success(f"Cliente {nombre_apellido} guardado exitosamente!")
         except Exception as e:
             st.error(f"Error al guardar el cliente: {str(e)}")
         

@@ -38,10 +38,11 @@ def obtener_nombres_clientes():
 def obtener_pagos_cliente(id_cliente):
     cursor = db.cursor()
     query = """
-    SELECT idCliente, idPago, fechaPago, montoPago, metodoPago, detallePago, idUsuario
-    FROM Pago
-    WHERE idCliente = ?
-    ORDER BY idPago DESC
+    SELECT P.idCliente, P.idPago, P.fechaPago, P.montoPago, P.metodoPago, P.detallePago, U.nombre, U.apellido
+    FROM Pago P
+    INNER JOIN Usuario U ON P.idUsuario = U.idUsuario
+    WHERE P.idCliente = ?
+    ORDER BY P.idPago DESC
     """
     cursor.execute(query, id_cliente)
     pagos_cliente = cursor.fetchall()
@@ -134,12 +135,13 @@ def main():
             if pagos_cliente:
                 st.write("Ordenados del más nuevo al más antiguo:")
                 # Crear una lista de tuplas a partir de los datos de pagos_cliente
-                pagos_data = [(p[0], p[1], p[2], p[3], p[4], p[5], p[6]) for p in pagos_cliente]
+                pagos_data = [(p[1], p[2], p[3], p[4], p[5], f"{p[6]} {p[7]}") for p in pagos_cliente]
                 # Crear el DataFrame con las columnas especificadas
-                pagos_df = pd.DataFrame(pagos_data, columns=["idCliente", "idPago", "fechaPago", "montoPago", "metodoPago", "detallePago", "idUsuario"])
+                pagos_df = pd.DataFrame(pagos_data, columns=["Id de Pago", "Fecha de pago", "Monto", "Metodo de pago", "Detalle del pago", "Registro el pago"])
                 st.dataframe(pagos_df)
             else:
                 st.write("El cliente no tiene pagos registrados.")
+
             
             st.title("Información del Cliente")
             st.write(f"ID del Cliente: {cliente_info[0]}")

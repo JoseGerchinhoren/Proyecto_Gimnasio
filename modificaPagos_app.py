@@ -110,15 +110,22 @@ def main():
     # Obtener nombre y apellido del usuario autenticado
     user_nombre_apellido = st.session_state.user_nombre_apellido
     
-    st.write("Modificar Pagos")
-    
     # Obtener la lista de nombres y apellidos de los clientes desde la base de datos
     nombres_clientes = obtener_nombres_clientes()
+
+    st.title("Buscar Cliente")
+
+    nombres_clientes = obtener_nombres_clientes()
+    nombre_cliente_input = st.text_input("Ingrese el Nombre y Apellido del Cliente:")
+    selected_cliente = None
     
-    # Crear un cuadro desplegable para seleccionar un cliente
-    selected_cliente = st.selectbox("Seleccionar Cliente:", nombres_clientes)
+    if nombre_cliente_input:
+        nombres_coincidentes = [nombre for nombre in nombres_clientes if nombre_cliente_input.lower() in nombre.lower()]
+        if nombres_coincidentes:
+            selected_cliente = st.selectbox("Seleccione un nombre:", nombres_coincidentes)
     
     if selected_cliente:
+        st.title(f"Cliente seleccionado: {selected_cliente}")
         # Obtener los pagos del cliente
         pagos_cliente = obtener_pagos_cliente(selected_cliente)
         
