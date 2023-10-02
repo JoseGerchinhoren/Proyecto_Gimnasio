@@ -99,7 +99,7 @@ def main():
     if nombre_cliente_input:
         nombres_coincidentes = [nombre for nombre in nombres_clientes if nombre_cliente_input.lower() in nombre.lower()]
         if nombres_coincidentes:
-            nombre_cliente = st.selectbox("Seleccione un nombre:", nombres_coincidentes)
+            nombre_cliente = st.selectbox("Seleccione un Cliente:", nombres_coincidentes)
     
     if nombre_cliente:
         st.title(f"Cliente seleccionado: {nombre_cliente}")
