@@ -72,10 +72,20 @@ def obtener_id_usuario(nombre, apellido):
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
 
 # Función para editar un pago por su ID
-def editar_pago(id_pago, monto, metodo_pago, detalle_pago, nombre_usuario):
+def editar_pago(id_pago, monto, metodo_pago, detalle_pago, nombre_usuario, campo_editado, nuevo_valor):
     conn = conectar_bd()
     cursor = conn.cursor()
     
+    # Obtener el valor anterior del campo editado
+    query_valor_anterior = f"""
+    SELECT {campo_editado}
+    FROM Pago
+    WHERE idPago = ?
+    """
+    cursor.execute(query_valor_anterior, (id_pago,))
+    valor_anterior = cursor.fetchone()[0]
+
+    # Realizar la actualización en la tabla Pago
     query = """
     UPDATE Pago
     SET
@@ -84,7 +94,6 @@ def editar_pago(id_pago, monto, metodo_pago, detalle_pago, nombre_usuario):
         detallePago = ?
     WHERE idPago = ?
     """
-    
     values = (monto, metodo_pago, detalle_pago, id_pago)
     cursor.execute(query, values)
     
@@ -94,15 +103,36 @@ def editar_pago(id_pago, monto, metodo_pago, detalle_pago, nombre_usuario):
    
     # Registrar la modificación en la tabla ModificacionesPagos
     query_modificacion = """
-    INSERT INTO ModificacionesPagos (idPago, idUsuario, fechaModificacion)
-    VALUES (?, ?, GETDATE())
+    INSERT INTO ModificacionesPagos (idPago, idUsuario, fechaModificacion, campoModificado, valorAnterior)
+    VALUES (?, ?, GETDATE(), ?, ?)
     """
-    values_modificacion = (id_pago, id_usuario_modificacion)
+    values_modificacion = (id_pago, id_usuario_modificacion, campo_editado, valor_anterior)
     cursor.execute(query_modificacion, values_modificacion)
     
     conn.commit()
     cursor.close()
     conn.close()
+
+def eliminar_pago(id_pago, nombre_cliente):
+    conn = conectar_bd()
+    cursor = conn.cursor()
+
+    try:
+        # Eliminar el pago de la tabla Pago
+        query_eliminar_pago = """
+        DELETE FROM Pago WHERE idPago = ?
+        """
+
+        cursor.execute(query_eliminar_pago, (id_pago,))
+        conn.commit()
+        st.success(f"Se ha eliminado el pago con ID {id_pago} correctamente.")
+    except pyodbc.IntegrityError as e:
+        st.error(f"No se puede eliminar el pago con ID {id_pago} debido a restricciones de integridad en la base de datos. Asegúrese de que no existan registros relacionados en otras tablas.")
+    except Exception as e:
+        st.error(f"Se produjo un error al eliminar el pago con ID {id_pago}: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
 
 def main():
     st.title("Modificar Pagos de Clientes")
@@ -176,13 +206,16 @@ def main():
                     if st.button("Guardar Cambios") and nuevo_valor is not None:
                         # Realizar la edición del campo seleccionado
                         if campo_editar == "Monto":
-                            editar_pago(id_pago, nuevo_valor, metodo_pago, detalle_pago, user_nombre_apellido)
+                            editar_pago(id_pago, nuevo_valor, metodo_pago, detalle_pago, user_nombre_apellido, "montoPago", nuevo_valor)
                         elif campo_editar == "Método de Pago":
-                            editar_pago(id_pago, monto_pago, nuevo_valor, detalle_pago, user_nombre_apellido)
+                            editar_pago(id_pago, monto_pago, nuevo_valor, detalle_pago, user_nombre_apellido, "metodoPago", nuevo_valor)
                         elif campo_editar == "Detalle de Pago":
-                            editar_pago(id_pago, monto_pago, metodo_pago, nuevo_valor, user_nombre_apellido)
+                            editar_pago(id_pago, monto_pago, metodo_pago, nuevo_valor, user_nombre_apellido, "detallePago", nuevo_valor)
                         
                         st.success(f"Se ha editado el campo {campo_editar} correctamente.")
+                    # Agregar un botón para eliminar el pago
+                    if st.button("Eliminar Pago"):
+                        eliminar_pago(id_pago, selected_cliente)
                 else:
                     st.error("ID de Pago no válido para este cliente.")
             else:

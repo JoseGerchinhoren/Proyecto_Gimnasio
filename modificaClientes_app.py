@@ -52,12 +52,21 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario, campo_
     
     cursor = db.cursor()
     
+    # Obtener el valor anterior del campo editado
+    query_valor_anterior = f"""
+    SELECT {campo_editar}
+    FROM Cliente
+    WHERE idCliente = ?
+    """
+    cursor.execute(query_valor_anterior, (id_cliente,))
+    valor_anterior = cursor.fetchone()[0]
+    
+    # Realizar la actualización en la tabla Cliente
     query = f"""
     UPDATE Cliente
     SET {campo_editar} = ?
     WHERE idCliente = ?
     """
-    
     values = (nuevo_valor, id_cliente)
     cursor.execute(query, values)
     db.commit()
@@ -68,10 +77,10 @@ def editar_cliente(id_cliente, campo_editar, nuevo_valor, nombre_usuario, campo_
 
     # Registrar la modificación en la tabla ModificacionesClientes
     query_modificacion = """
-    INSERT INTO ModificacionesClientes (idCliente, idUsuario, fechaModificacion, campoModificado, nuevoValor)
+    INSERT INTO ModificacionesClientes (idCliente, idUsuario, fechaModificacion, campoModificado, valorAnterior)
     VALUES (?, ?, GETDATE(), ?, ?)
     """
-    values_modificacion = (id_cliente, id_usuario_modificacion, campo_modificado, nuevo_valor)
+    values_modificacion = (id_cliente, id_usuario_modificacion, campo_modificado, valor_anterior)
     cursor.execute(query_modificacion, values_modificacion)
     db.commit()
     
