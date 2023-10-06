@@ -118,14 +118,26 @@ def eliminar_pago(id_pago, nombre_cliente):
     cursor = conn.cursor()
 
     try:
-        # Eliminar el pago de la tabla Pago
-        query_eliminar_pago = """
-        DELETE FROM Pago WHERE idPago = ?
+        # Obtener los detalles del pago que se va a eliminar
+        query_obtener_pago = """
+        SELECT idCliente, fechaPago, horarioPago, montoPago, metodoPago, detallePago
+        FROM Pago
+        WHERE idPago = ?
         """
-
-        cursor.execute(query_eliminar_pago, (id_pago,))
-        conn.commit()
-        st.success(f"Se ha eliminado el pago con ID {id_pago} correctamente.")
+        cursor.execute(query_obtener_pago, (id_pago,))
+        detalle_pago = cursor.fetchone()
+        if detalle_pago:
+            id_cliente, fecha_pago, horario_pago, monto_pago, metodo_pago, detalle_pago = detalle_pago
+            
+            # Eliminar el pago de la tabla Pago
+            query_eliminar_pago = """
+            DELETE FROM Pago WHERE idPago = ?
+            """
+            cursor.execute(query_eliminar_pago, (id_pago,))
+            conn.commit()
+            st.success(f"Se ha eliminado el pago con ID {id_pago} correctamente.")
+        else:
+            st.warning(f"No se encontró el pago con ID {id_pago}.")
     except pyodbc.IntegrityError as e:
         st.error(f"No se puede eliminar el pago con ID {id_pago} debido a restricciones de integridad en la base de datos. Asegúrese de que no existan registros relacionados en otras tablas.")
     except Exception as e:
