@@ -120,14 +120,22 @@ def eliminar_pago(id_pago, nombre_cliente):
     try:
         # Obtener los detalles del pago que se va a eliminar
         query_obtener_pago = """
-        SELECT idCliente, fechaPago, horarioPago, montoPago, metodoPago, detallePago
+        SELECT idCliente, fechaPago, horarioPago, montoPago, metodoPago, detallePago, idUsuario
         FROM Pago
         WHERE idPago = ?
         """
         cursor.execute(query_obtener_pago, (id_pago,))
         detalle_pago = cursor.fetchone()
         if detalle_pago:
-            id_cliente, fecha_pago, horario_pago, monto_pago, metodo_pago, detalle_pago = detalle_pago
+            id_cliente, fecha_pago, horario_pago, monto_pago, metodo_pago, detalle_pago, id_usuario_creacion = detalle_pago
+            
+            # Insertar los detalles del pago eliminado en la tabla pagosEliminados
+            query_insertar_pago_eliminado = """
+            INSERT INTO PagosEliminados (idPago, idCliente, idUsuario, fechaEliminacion, fechaPago, horarioPago, montoPago, metodoPago, detallePago)
+            VALUES (?, ?, ?, GETDATE(), ?, ?, ?, ?, ?)
+            """
+            
+            cursor.execute(query_insertar_pago_eliminado, (id_pago, id_cliente, id_usuario_creacion, fecha_pago, horario_pago, monto_pago, metodo_pago, detalle_pago))
             
             # Eliminar el pago de la tabla Pago
             query_eliminar_pago = """
@@ -135,7 +143,7 @@ def eliminar_pago(id_pago, nombre_cliente):
             """
             cursor.execute(query_eliminar_pago, (id_pago,))
             conn.commit()
-            st.success(f"Se ha eliminado el pago con ID {id_pago} correctamente.")
+            st.success(f"Se ha eliminado el pago con ID {id_pago} correctamente y se ha registrado en la tabla de pagos eliminados.")
         else:
             st.warning(f"No se encontró el pago con ID {id_pago}.")
     except pyodbc.IntegrityError as e:
