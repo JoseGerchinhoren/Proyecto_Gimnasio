@@ -19,10 +19,16 @@ db = pyodbc.connect(
     pwd=config["password"]
 )
 
-def obtener_info_cliente(nombre_cliente):
+def obtener_info_cliente(nombre_cliente, dni_cliente=None):
     cursor = db.cursor()
-    query = "SELECT * FROM Cliente WHERE nombreApellido = ?"
-    cursor.execute(query, nombre_cliente)
+    
+    if nombre_cliente:
+        query = "SELECT * FROM Cliente WHERE nombreApellido = ?"
+        cursor.execute(query, nombre_cliente)
+    elif dni_cliente:
+        query = "SELECT * FROM Cliente WHERE dni = ?"
+        cursor.execute(query, dni_cliente)
+    
     cliente_info = cursor.fetchone()
     cursor.close()
     return cliente_info
@@ -93,18 +99,30 @@ def main():
     st.title("Buscar Cliente")
     
     nombres_clientes = obtener_nombres_clientes()
-    nombre_cliente_input = st.text_input("Ingrese el Nombre y Apellido del Cliente:")
+    nombre_cliente_input = st.text_input("Ingrese el Nombre y Apellido o el número de DNI del Cliente:")
     nombre_cliente = None
+    cliente_info = None  # Inicializar cliente_info
     
     if nombre_cliente_input:
         nombres_coincidentes = [nombre for nombre in nombres_clientes if nombre_cliente_input.lower() in nombre.lower()]
-        if nombres_coincidentes:
+        dni_cliente = None
+
+        # Verificar si la entrada es un número de DNI
+        if nombre_cliente_input.isdigit() and len(nombre_cliente_input) == 8:
+            dni_cliente = nombre_cliente_input
+
+        if dni_cliente:
+            cliente_info = obtener_info_cliente(None, dni_cliente)
+        elif nombres_coincidentes:
             nombre_cliente = st.selectbox("Seleccione un Cliente:", nombres_coincidentes)
-    
-    if nombre_cliente:
-        st.title(f"Cliente seleccionado: {nombre_cliente}")
-        cliente_info = obtener_info_cliente(nombre_cliente)
+            cliente_info = obtener_info_cliente(nombre_cliente)
+
         if cliente_info:
+            if dni_cliente:
+                st.title(f"Cliente seleccionado: {cliente_info[4]}")
+            else:
+                st.title(f"Cliente seleccionado: {nombre_cliente}")
+
             st.title("Estado de Cuota")
             # Obtener el ID del cliente
             id_cliente = cliente_info[0]
@@ -149,7 +167,7 @@ def main():
             st.write(f"Fecha de Inscripción: {cliente_info[1]}")
             st.write(f"Hora de Inscripción: {cliente_info[2]}")
             st.write(f"Fecha de Nacimiento: {cliente_info[3]}")
-            st.write(f"Genero: {cliente_info[5]}")
+            st.write(f"Género: {cliente_info[5]}")
             st.write(f"Email: {cliente_info[6]}")
             st.write(f"Teléfono: {cliente_info[7]}")
             st.write(f"Domicilio: {cliente_info[8]}")
