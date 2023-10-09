@@ -154,6 +154,26 @@ def eliminar_pago(id_pago, nombre_cliente):
         cursor.close()
         conn.close()
 
+def buscar_pagos_por_fecha(fecha_pago):
+    conn = conectar_bd()
+    cursor = conn.cursor()
+    
+    query = """
+    SELECT P.idCliente, P.idPago, P.fechaPago, P.montoPago, P.metodoPago, P.detallePago
+    FROM Pago AS P
+    INNER JOIN Cliente AS C ON P.idCliente = C.idCliente
+    WHERE P.fechaPago = ?
+    ORDER BY idPago DESC
+    """
+    
+    cursor.execute(query, (fecha_pago,))
+    rows = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+    return rows
+
 def main():
     st.title("Modificar Pagos de Clientes")
     
