@@ -49,7 +49,7 @@ def main():
     archivo = st.file_uploader("Subir Archivo (PDF o Imagen):", type=["pdf", "jpg", "jpeg", "png"])
     
     if st.button("Guardar Gasto"):
-        if motivo and lugar and monto and metodo_pago and categoria_gasto and observacion:
+        if motivo and lugar and monto and metodo_pago and categoria_gasto:
             # Verificar si se cargó un archivo
             archivo_data = None
             if archivo:
