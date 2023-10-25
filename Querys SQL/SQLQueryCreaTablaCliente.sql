@@ -8,9 +8,8 @@ CREATE TABLE Cliente (
     telefono varchar(20),
     domicilio text,
     dni varchar(20),
-    requiereInstructor tinyint,
-    pesoInicial int,
-    objetivo varchar(50),
+	motivoGym VARCHAR(255),
+	comoSeEntero VARCHAR(255),
     observaciones text,
 	idUsuario varchar(50),
 	);

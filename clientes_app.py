@@ -41,7 +41,8 @@ def obtener_id_usuario(nombre, apellido):
     
     return row[0] if row else None  # Devuelve el ID de usuario o None si no se encuentra
 
-def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario):
+# Modificar la función guardar_cliente
+def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, motivo_gym, como_se_entero, observaciones, idUsuario):
     cursor = conn.cursor()
     
     # Obtener el ID de usuario a partir del nombre y apellido del usuario
@@ -58,10 +59,11 @@ def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero
         fecha_nacimiento_sql = datetime.strptime(fecha_nacimiento, '%d/%m/%Y').strftime('%Y-%m-%d')
 
         # Ejecutar el stored procedure con los parámetros requeridos
-        cursor.execute("EXEC InsertarCliente ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
-                    (fecha_inscripcion, fecha_nacimiento_sql, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, id_usuario))
+        cursor.execute("EXEC InsertarCliente ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+                    (fecha_inscripcion, fecha_nacimiento_sql, nombre_apellido, genero, email, telefono, domicilio, dni, motivo_gym, como_se_entero, observaciones, id_usuario))
         conn.commit()
         st.success(f"Cliente {nombre_apellido} guardado exitosamente!")
+
     except pyodbc.Error as e:
         conn.rollback()
         st.error(f"Error al guardar el Cliente: {str(e)}")
@@ -80,10 +82,8 @@ def main():
     telefono = st.text_input("Número de Teléfono Celular:")
     domicilio = st.text_input("Domicilio:")
     dni = st.text_input("Número de DNI:")
-    requiere_instructor = st.checkbox("Requiere Instructor")
-    peso_inicial = st.number_input("Peso Inicial:", step=1)
-    objetivo_options = ["Sin especificar", "Bajar de Peso", "Subir de Peso", "Mantener"]
-    objetivo = st.selectbox("Objetivo:", objetivo_options)
+    motivo_gym = st.text_input("Motivo por el cual viene al gym:")
+    como_se_entero = st.text_input("¿Cómo se enteró de Six Gym?")
     observaciones = st.text_area("Observaciones")
     
     # Obtener el nombre y apellido del usuario autenticado
@@ -91,7 +91,7 @@ def main():
     
     if st.button("Guardar Cliente"):
         try:
-            guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, requiere_instructor, peso_inicial, objetivo, observaciones, idUsuario)
+            guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero, email, telefono, domicilio, dni, motivo_gym, como_se_entero, observaciones, idUsuario)
         except Exception as e:
             st.error(f"Error al guardar el cliente: {str(e)}")
         
