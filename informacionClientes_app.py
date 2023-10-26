@@ -138,7 +138,7 @@ def main():
 
             # Agregar el texto y el sector de estado
             ax.bar([1], [1], color=estado_color)
-            ax.text(1, 0.5, estado_texto, ha='center', va='center', fontsize=25, color='white')
+            ax.text(1, 0.5, estado_texto, ha='center', va='center', fontsize=25, color='black')
             ax.set_xticks([])
             ax.set_yticks([])
 
@@ -159,7 +159,6 @@ def main():
                 st.dataframe(pagos_df)
             else:
                 st.write("El cliente no tiene pagos registrados.")
-
             
             st.title("Información del Cliente")
             st.write(f"ID del Cliente: {cliente_info[0]}")
