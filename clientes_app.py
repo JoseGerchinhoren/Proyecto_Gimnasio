@@ -50,6 +50,14 @@ def guardar_cliente(fecha_inscripcion, fecha_nacimiento, nombre_apellido, genero
     id_usuario = obtener_id_usuario(nombre, apellido)
 
     try:
+        # Verificar si el DNI ya existe en la base de datos
+        cursor.execute("SELECT COUNT(*) FROM Cliente WHERE dni = ?", (dni,))
+        existing_count = cursor.fetchone()[0]
+        
+        if existing_count > 0:
+            st.error(f"Error: El DNI {dni} ya está en la base de datos.")
+            return
+
         # Validar el formato de la fecha de nacimiento
         if not validar_fecha(fecha_nacimiento):
             st.error("Error: La fecha de nacimiento no se ingresó en el formato correcto (DD/MM/AAAA).")

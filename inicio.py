@@ -7,8 +7,6 @@ from modificaClientes_app import main as modifica_cliente_main
 from modificaPagos_app import main as modifica_pagos_main
 from gastos_app import main as gastos_main
 from visualizarGastos_app import main as visualizar_gastos_main
-
-
 import pyodbc
 import json
 
@@ -78,9 +76,10 @@ def logout():
     st.session_state.user_nombre_apellido = ""  # Limpiar el nombre y apellido al cerrar sesión
     st.success("Sesión cerrada exitosamente!")
 
-def main():
-    st.title("SixGym - Sistema de Gestión")
-    
+def main():    
+    st.markdown('<h1 style="color: #47FF00;">SixGym - Sistema de Gestión</h1>', unsafe_allow_html=True)
+    st.image("img\logo_SixGym.jpg", width=150)
+
     if logged_in:
         st.sidebar.title("Menú")
         
