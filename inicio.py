@@ -9,6 +9,13 @@ from gastos_app import main as gastos_main
 from visualizarGastos_app import main as visualizar_gastos_main
 import pyodbc
 import json
+import logging
+
+# Configurar el registro
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+# Crear un objeto de registro para tu aplicación
+logger = logging.getLogger(__name__)
 
 # Crear una variable de sesión para almacenar el estado de inicio de sesión
 logged_in = st.session_state.get("logged_in", False)
@@ -77,7 +84,7 @@ def logout():
     st.success("Sesión cerrada exitosamente!")
 
 def main():    
-    st.markdown('<h1 style="color: #47FF00;">SixGym - Sistema de Gestión</h1>', unsafe_allow_html=True)
+    st.title("SixGym - Sistema de Gestión")
     st.image("img\logo_SixGym.jpg", width=150)
 
     if logged_in:
