@@ -119,15 +119,21 @@ def main():
             usuarios_main()
     else:
         st.sidebar.title("Inicio de Sesión")
-        nombres_apellidos = obtener_nombres_apellidos()  # Obtener la lista de nombres y apellidos desde la base de datos
-        username = st.selectbox("Nombre y Apellido:", nombres_apellidos)
-        password = st.text_input("Contraseña:", type="password")
-        if st.button("Iniciar Sesión"):
-            login(username, password)
-    
-    # Mostrar opción de cerrar sesión si está autenticado
-    if logged_in:
-        st.sidebar.button("Cerrar Sesión", on_click=logout)
+        # nombres_apellidos = obtener_nombres_apellidos()  # Obtener la lista de nombres y apellidos desde la base de datos
+        
+        # Inicializa un formulario para el inicio de sesión
+        with st.form(key="login_form"):
+            username = st.text_input("Nombre y Apellido:")# , nombres_apellidos)
+            password = st.text_input("Contraseña:", type="password")
+            login_submitted = st.form_submit_button("Iniciar Sesión")
+        
+            # Verifica si se ha presionado el botón "Iniciar Sesión" y los campos están completos
+            if login_submitted and username and password:
+                login(username, password)
+
+        # Mostrar opción de cerrar sesión si está autenticado
+        if logged_in:
+            st.sidebar.button("Cerrar Sesión", on_click=logout)
 
 if __name__ == "__main__":
     main()
