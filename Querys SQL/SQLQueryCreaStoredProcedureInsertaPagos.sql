@@ -1,4 +1,4 @@
-CREATE PROCEDURE InsertarPago
+CREATE PROCEDURE [dbo].[InsertarPago]
     @fechaPago DATE,
     @idCliente INT,
     @montoPago INT,
@@ -7,8 +7,7 @@ CREATE PROCEDURE InsertarPago
     @idUsuario INT
 AS
 BEGIN
-
-	DECLARE @horario_pago datetime;
+    DECLARE @horario_pago datetime;
     SET @horario_pago = GETDATE(); -- Obtiene la hora actual
 
     INSERT INTO Pago (fechaPago, horarioPago, idCliente, montoPago, metodoPago, detallePago, idUsuario)
