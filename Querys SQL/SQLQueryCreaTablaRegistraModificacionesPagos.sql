@@ -3,7 +3,7 @@ CREATE TABLE ModificacionesPagos (
     idModificacionPago INT PRIMARY KEY IDENTITY(1,1),
     idPago INT,
     fechaModificacion DATETIME DEFAULT GETDATE(),
-    usuarioModificacion VARCHAR(255),
-    CONSTRAINT FK_Pago_ModificacionesPagos FOREIGN KEY (idPago) REFERENCES Pago(idPago),
+    idUsuario INT,
+	campoModificado varchar(50),
 	valorAnterior VARCHAR(500)
 );

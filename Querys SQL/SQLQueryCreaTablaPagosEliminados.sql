@@ -1,7 +1,6 @@
 CREATE TABLE PagosEliminados (
     idPagoEliminado INT IDENTITY(1,1) PRIMARY KEY,
 	fechaEliminacion DATETIME NOT NULL,
-	idUsuarioElimino INT NOT NULL,
     idPago INT NOT NULL,
     idCliente INT NOT NULL,
     idUsuario INT NOT NULL,

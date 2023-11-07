@@ -3,7 +3,7 @@ CREATE TABLE ModificacionesClientes (
     idModificacionCliente INT PRIMARY KEY IDENTITY(1,1),
     idCliente INT,
     fechaModificacion DATETIME DEFAULT GETDATE(),
-    usuarioModificacion VARCHAR(255),
-    CONSTRAINT FK_Cliente_ModificacionesClientes FOREIGN KEY (idCliente) REFERENCES Cliente(idCliente),
+    idUsuario INT,
+	campoModificado varchar(50),
 	valorAnterior VARCHAR(500)
 );

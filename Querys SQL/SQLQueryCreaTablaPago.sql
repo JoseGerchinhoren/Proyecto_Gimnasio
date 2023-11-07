@@ -1,9 +1,10 @@
 -- Creación de la tabla "pago"
 CREATE TABLE Pago (
-    id int PRIMARY KEY IDENTITY(1,1),
-    fechaPago date,
+    idPago int PRIMARY KEY IDENTITY(1,1),
     idCliente int,
-    nombreApellidoCliente varchar(255),
+	idUsuario int,
+	fechaPago date,
+	horarioPago time(0),
     montoPago decimal(10,2),
     metodoPago varchar(50),
     detallePago varchar(255)

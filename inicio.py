@@ -131,9 +131,9 @@ def main():
             if login_submitted and username and password:
                 login(username, password)
 
-        # Mostrar opción de cerrar sesión si está autenticado
-        if logged_in:
-            st.sidebar.button("Cerrar Sesión", on_click=logout)
+    # Mostrar opción de cerrar sesión si está autenticado
+    if logged_in:
+        st.sidebar.button("Cerrar Sesión", on_click=logout)
 
 if __name__ == "__main__":
     main()
